@@ -7,7 +7,8 @@ static int BuildHoles(
     const double positions[4][2],
     const char*  names[4],
     double       zPlane,
-    double       radius)
+    double       radius,
+    const char*  limit)
 {
     for (int i = 0; i < 4; ++i)
     {
@@ -26,7 +27,7 @@ static int BuildHoles(
         if (errorCode != 0) return errorCode;
 
         double dir[3] = { 0.0, 0.0, -1.0 };
-        errorCode = CreateExtrusion(holeSketch, "0", "4", dir, UF_NEGATIVE);
+        errorCode = CreateExtrusion(holeSketch, "0", limit, dir, UF_NEGATIVE);
         if (errorCode != 0) return errorCode;
     }
     return 0;
@@ -43,12 +44,15 @@ void ufusr(char* param, int* retcode, int paramLen)
         return;
     }
 
-    const double Z_SKETCH = 119.0;
-    const double R_OUTER  = 70.0;
-    const double R_INNER  = 25.0;
-    const double Z_TOP    = 123.0;
-    const double R_HOLE   = 6.5;
-    const double R_PITCH  = 50.0;
+    const double Z_SKETCH  = 119.0;
+    const double R_OUTER   = 70.0;
+    const double R_INNER   = 25.0;
+    const double Z_TOP     = 123.0;
+    const double R_CYL     = R_OUTER;
+    const double Z_CYL_TOP = 139.0;
+    const double R_HOLE    = 6.5;
+    const double R_PITCH   = 50.0;
+    const double R_BORE    = 27.5;
 
     const double positions[4][2] = {
         {  R_PITCH,  0.0 },
@@ -64,9 +68,20 @@ void ufusr(char* param, int* retcode, int paramLen)
         "Sketch_Hole_3"
     };
 
+    const char* topHoleNames[4] = {
+        "Sketch_TopHole_0",
+        "Sketch_TopHole_1",
+        "Sketch_TopHole_2",
+        "Sketch_TopHole_3"
+    };
+
     tag_t sketchTag   = NULL_TAG;
     tag_t outerCircle = NULL_TAG;
     tag_t innerCircle = NULL_TAG;
+    tag_t cylSketch   = NULL_TAG;
+    tag_t cylCircle   = NULL_TAG;
+    tag_t boreSketch  = NULL_TAG;
+    tag_t boreCircle  = NULL_TAG;
 
     errorCode = CreateSketchOnPlane("Sketch_Base", Z_SKETCH, sketchTag);
     if (errorCode != 0) goto cleanup;
@@ -89,8 +104,41 @@ void ufusr(char* param, int* retcode, int paramLen)
         if (errorCode != 0) goto cleanup;
     }
 
-    errorCode = BuildHoles(positions, holeNames, Z_TOP, R_HOLE);
+    errorCode = BuildHoles(positions, holeNames, Z_TOP, R_HOLE, "4");
     if (errorCode != 0) goto cleanup;
+
+    errorCode = CreateSketchOnPlane("Sketch_Cylinder", Z_TOP, cylSketch);
+    if (errorCode != 0) goto cleanup;
+
+    errorCode = CreateCircle(0.0, 0.0, Z_TOP, R_CYL, cylCircle);
+    if (errorCode != 0) goto cleanup;
+
+    errorCode = AddObjectsToSketch(cylSketch, 1, &cylCircle);
+    if (errorCode != 0) goto cleanup;
+
+    {
+        double dir[3] = { 0.0, 0.0, 1.0 };
+        errorCode = CreateExtrusion(cylSketch, "0", "16", dir, UF_POSITIVE);
+        if (errorCode != 0) goto cleanup;
+    }
+
+    errorCode = BuildHoles(positions, topHoleNames, Z_CYL_TOP, R_HOLE, "16");
+    if (errorCode != 0) goto cleanup;
+
+    errorCode = CreateSketchOnPlane("Sketch_Bore", Z_CYL_TOP, boreSketch);
+    if (errorCode != 0) goto cleanup;
+
+    errorCode = CreateCircle(0.0, 0.0, Z_CYL_TOP, R_BORE, boreCircle);
+    if (errorCode != 0) goto cleanup;
+
+    errorCode = AddObjectsToSketch(boreSketch, 1, &boreCircle);
+    if (errorCode != 0) goto cleanup;
+
+    {
+        double dir[3] = { 0.0, 0.0, -1.0 };
+        errorCode = CreateExtrusion(boreSketch, "0", "5", dir, UF_NEGATIVE);
+        if (errorCode != 0) goto cleanup;
+    }
 
 cleanup:
     if (errorCode != 0)

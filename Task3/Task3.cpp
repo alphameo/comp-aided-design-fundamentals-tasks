@@ -8,7 +8,8 @@ static int BuildHoles(
     const char*  names[4],
     double       zPlane,
     double       radius,
-    const char*  limit)
+    const char*  limit,
+    const double dir[3])
 {
     for (int i = 0; i < 4; ++i)
     {
@@ -26,7 +27,6 @@ static int BuildHoles(
         errorCode = AddObjectsToSketch(holeSketch, 1, &holeCircle);
         if (errorCode != 0) return errorCode;
 
-        double dir[3] = { 0.0, 0.0, -1.0 };
         errorCode = CreateExtrusion(holeSketch, "0", limit, dir, UF_NEGATIVE);
         if (errorCode != 0) return errorCode;
     }
@@ -107,8 +107,11 @@ void ufusr(char* param, int* retcode, int paramLen)
         if (errorCode != 0) goto cleanup;
     }
 
-    errorCode = BuildHoles(positions, prokladka1HoleNames, Z_PROKLADKA1_TOP, R_HOLE, "4");
-    if (errorCode != 0) goto cleanup;
+    {
+        double dir[3] = { 0.0, 0.0, -1.0 };
+        errorCode = BuildHoles(positions, prokladka1HoleNames, Z_PROKLADKA1_TOP, R_HOLE, "4", dir);
+        if (errorCode != 0) goto cleanup;
+    }
 
     errorCode = CreateSketchOnPlane("Sketch_Zaglushka", Z_PROKLADKA1_TOP, zaglushkaSketch);
     if (errorCode != 0) goto cleanup;
@@ -125,8 +128,11 @@ void ufusr(char* param, int* retcode, int paramLen)
         if (errorCode != 0) goto cleanup;
     }
 
-    errorCode = BuildHoles(positions, zaglushkaHoleNames, Z_ZAGLUSHKA_TOP, R_HOLE, "16");
-    if (errorCode != 0) goto cleanup;
+    {
+        double dir[3] = { 0.0, 0.0, -1.0 };
+        errorCode = BuildHoles(positions, zaglushkaHoleNames, Z_ZAGLUSHKA_TOP, R_HOLE, "16", dir);
+        if (errorCode != 0) goto cleanup;
+    }
 
     errorCode = CreateSketchOnPlane("Sketch_Zag_Bore", Z_ZAGLUSHKA_TOP, zaglushkaBoreSketch);
     if (errorCode != 0) goto cleanup;
@@ -215,8 +221,11 @@ void ufusr(char* param, int* retcode, int paramLen)
             "Sketch_Prok2_Hole_3"
         };
 
-        errorCode = BuildHoles(prok2HolePos, prok2HoleNames, Z_PROKLADKA2, PROK2_HOLE_R, "5");
-        if (errorCode != 0) goto cleanup;
+        {
+            double dir[3] = { 0.0, 0.0, -1.0 };
+            errorCode = BuildHoles(prok2HolePos, prok2HoleNames, Z_PROKLADKA2, PROK2_HOLE_R, "5", dir);
+            if (errorCode != 0) goto cleanup;
+        }
 
         tag_t prok2CenterSketch = NULL_TAG;
         tag_t prok2CenterCircle = NULL_TAG;
@@ -234,6 +243,109 @@ void ufusr(char* param, int* retcode, int paramLen)
         {
             double dir[3] = { 0.0, 0.0, -1.0 };
             errorCode = CreateExtrusion(prok2CenterSketch, "0", "5", dir, UF_NEGATIVE);
+            if (errorCode != 0) goto cleanup;
+        }
+    }
+
+    {
+        const double Z_KORPUS1    = 0.0;
+        const double KR1_HALF     = 80.0;
+        const double KR1_RADIUS   = 20.0;
+        const double KR1_L        = KR1_HALF - KR1_RADIUS;
+        const double KR1_S        = KR1_RADIUS * 0.7071067811865476;
+        const double KR1_HOLE_R   = 7.5;
+        const double KR1_HOLE_POS = 62.5;
+        const double KR1_CENTER_R = 25.0;
+
+        tag_t kr1Sketch = NULL_TAG;
+        tag_t kr1Curves[8] = { NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG,
+                               NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG };
+
+        errorCode = CreateSketchOnPlane("Sketch_Korpus1", Z_KORPUS1, kr1Sketch);
+        if (errorCode != 0) goto cleanup;
+
+        double topLeft0[3]    = { -KR1_L,  KR1_HALF, Z_KORPUS1 };
+        double topRight0[3]   = {  KR1_L,  KR1_HALF, Z_KORPUS1 };
+        double rightTop0[3]   = {  KR1_HALF,  KR1_L, Z_KORPUS1 };
+        double rightBot0[3]   = {  KR1_HALF, -KR1_L, Z_KORPUS1 };
+        double botRight0[3]   = {  KR1_L, -KR1_HALF, Z_KORPUS1 };
+        double botLeft0[3]    = { -KR1_L, -KR1_HALF, Z_KORPUS1 };
+        double leftBot0[3]    = { -KR1_HALF, -KR1_L, Z_KORPUS1 };
+        double leftTop0[3]    = { -KR1_HALF,  KR1_L, Z_KORPUS1 };
+
+        double arcTRmid[3]    = {  KR1_L + KR1_S,  KR1_L + KR1_S, Z_KORPUS1 };
+        double arcBRmid[3]    = {  KR1_L + KR1_S, -KR1_L - KR1_S, Z_KORPUS1 };
+        double arcBLmid[3]    = { -KR1_L - KR1_S, -KR1_L - KR1_S, Z_KORPUS1 };
+        double arcTLmid[3]    = { -KR1_L - KR1_S,  KR1_L + KR1_S, Z_KORPUS1 };
+
+        errorCode = CreateLine(topLeft0, topRight0, kr1Curves[0]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(topRight0, arcTRmid, rightTop0, kr1Curves[1]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(rightTop0, rightBot0, kr1Curves[2]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(rightBot0, arcBRmid, botRight0, kr1Curves[3]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(botRight0, botLeft0, kr1Curves[4]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(botLeft0, arcBLmid, leftBot0, kr1Curves[5]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(leftBot0, leftTop0, kr1Curves[6]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(leftTop0, arcTLmid, topLeft0, kr1Curves[7]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = AddObjectsToSketch(kr1Sketch, 8, kr1Curves);
+        if (errorCode != 0) goto cleanup;
+
+        {
+            double dir[3] = { 0.0, 0.0, 1.0 };
+            errorCode = CreateExtrusion(kr1Sketch, "0", "14", dir, UF_NULLSIGN);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        const double kr1HolePos[4][2] = {
+            {  KR1_HOLE_POS,  KR1_HOLE_POS },
+            { -KR1_HOLE_POS,  KR1_HOLE_POS },
+            { -KR1_HOLE_POS, -KR1_HOLE_POS },
+            {  KR1_HOLE_POS, -KR1_HOLE_POS }
+        };
+
+        const char* kr1HoleNames[4] = {
+            "Sketch_Kr1_Hole_0",
+            "Sketch_Kr1_Hole_1",
+            "Sketch_Kr1_Hole_2",
+            "Sketch_Kr1_Hole_3"
+        };
+
+        {
+            double dir[3] = { 0.0, 0.0, 1.0 };
+            errorCode = BuildHoles(kr1HolePos, kr1HoleNames, Z_KORPUS1, KR1_HOLE_R, "14", dir);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        {
+            tag_t kr1CenterSketch = NULL_TAG;
+            tag_t kr1CenterCircle = NULL_TAG;
+
+            errorCode = CreateSketchOnPlane("Sketch_Kr1_Center", Z_KORPUS1, kr1CenterSketch);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = CreateCircle(0.0, 0.0, Z_KORPUS1, KR1_CENTER_R, kr1CenterCircle);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = AddObjectsToSketch(kr1CenterSketch, 1, &kr1CenterCircle);
+            if (errorCode != 0) goto cleanup;
+
+            double dir[3] = { 0.0, 0.0, 1.0 };
+            errorCode = CreateExtrusion(kr1CenterSketch, "0", "14", dir, UF_NEGATIVE);
             if (errorCode != 0) goto cleanup;
         }
     }
@@ -315,8 +427,11 @@ void ufusr(char* param, int* retcode, int paramLen)
             "Sketch_Fl_Hole_3"
         };
 
-        errorCode = BuildHoles(flHolePos, flHoleNames, Z_FLANETZ, FL_HOLE_R, "25");
-        if (errorCode != 0) goto cleanup;
+        {
+            double dir[3] = { 0.0, 0.0, -1.0 };
+            errorCode = BuildHoles(flHolePos, flHoleNames, Z_FLANETZ, FL_HOLE_R, "25", dir);
+            if (errorCode != 0) goto cleanup;
+        }
 
         {
             const double Z_FLANETZ_BOTTOM = -30.0;

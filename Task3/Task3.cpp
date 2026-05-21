@@ -118,7 +118,7 @@ void ufusr(char* param, int* retcode, int paramLen)
 
     {
         double dir[3] = { 0.0, 0.0, 1.0 };
-        errorCode = CreateExtrusion(cylSketch, "0", "16", dir, UF_POSITIVE);
+        errorCode = CreateExtrusion(cylSketch, "0", "16", dir, UF_NULLSIGN);
         if (errorCode != 0) goto cleanup;
     }
 

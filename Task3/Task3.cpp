@@ -412,6 +412,60 @@ void ufusr(char* param, int* retcode, int paramLen)
     }
 
     {
+        const double Z_KORPUS2    = 119.0;
+        const double KR2_OUTER_R  = 70.0;
+        const double KR2_INNER_R  = 25.0;
+
+        tag_t kr2Sketch = NULL_TAG;
+        tag_t kr2Outer  = NULL_TAG;
+        tag_t kr2Inner  = NULL_TAG;
+
+        errorCode = CreateSketchOnPlane("Sketch_Korpus2", Z_KORPUS2, kr2Sketch);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS2, KR2_OUTER_R, kr2Outer);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS2, KR2_INNER_R, kr2Inner);
+        if (errorCode != 0) goto cleanup;
+
+        {
+            tag_t objs[2] = { kr2Outer, kr2Inner };
+            errorCode = AddObjectsToSketch(kr2Sketch, 2, objs);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        {
+            double dir[3] = { 0.0, 0.0, -1.0 };
+            errorCode = CreateExtrusion(kr2Sketch, "0", "25", dir, UF_POSITIVE);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        {
+            const double KR2_HOLE_R    = 6.5;
+            const double KR2_HOLE_POS  = 50.0;
+
+            const double kr2HolePos[4][2] = {
+                {  KR2_HOLE_POS,  0.0 },
+                {  0.0,  KR2_HOLE_POS },
+                { -KR2_HOLE_POS,  0.0 },
+                {  0.0, -KR2_HOLE_POS }
+            };
+
+            const char* kr2HoleNames[4] = {
+                "Sketch_Kr2_Hole_0",
+                "Sketch_Kr2_Hole_1",
+                "Sketch_Kr2_Hole_2",
+                "Sketch_Kr2_Hole_3"
+            };
+
+            double dir[3] = { 0.0, 0.0, -1.0 };
+            errorCode = BuildHoles(kr2HolePos, kr2HoleNames, Z_KORPUS2, KR2_HOLE_R, "25", dir);
+            if (errorCode != 0) goto cleanup;
+        }
+    }
+
+    {
         const double Z_FLANETZ    = -5.0;
         const double FL_HALF      = 80.0;
         const double FL_RADIUS    = 20.0;

@@ -146,6 +146,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Task3.cpp" />
+    <ClCompile Include="geometry.cpp" />
+    <ClCompile Include="sketch.cpp" />
+    <ClCompile Include="features.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="geometry.h" />
+    <ClInclude Include="sketch.h" />
+    <ClInclude Include="features.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

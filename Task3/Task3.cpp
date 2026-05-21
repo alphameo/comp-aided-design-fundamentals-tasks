@@ -82,6 +82,9 @@ void ufusr(char* param, int* retcode, int paramLen)
     tag_t zaglushkaCircle       = NULL_TAG;
     tag_t zaglushkaBoreSketch   = NULL_TAG;
     tag_t zaglushkaBoreCircle   = NULL_TAG;
+    tag_t prokladka2Sketch      = NULL_TAG;
+    tag_t prok2Curves[8]        = { NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG,
+                                    NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG };
 
     errorCode = CreateSketchOnPlane("Sketch_Prokladka1", Z_PROKLADKA1, prokladka1Sketch);
     if (errorCode != 0) goto cleanup;
@@ -138,6 +141,101 @@ void ufusr(char* param, int* retcode, int paramLen)
         double dir[3] = { 0.0, 0.0, -1.0 };
         errorCode = CreateExtrusion(zaglushkaBoreSketch, "0", "5", dir, UF_NEGATIVE);
         if (errorCode != 0) goto cleanup;
+    }
+
+    {
+        const double Z_PROKLADKA2  = 0.0;
+        const double PROK2_HALF    = 80.0;
+        const double PROK2_RADIUS  = 20.0;
+        const double PROK2_L       = PROK2_HALF - PROK2_RADIUS;
+        const double PROK2_S       = PROK2_RADIUS * 0.7071067811865476;
+
+        errorCode = CreateSketchOnPlane("Sketch_Prokladka2", Z_PROKLADKA2, prokladka2Sketch);
+        if (errorCode != 0) goto cleanup;
+
+        double topLeft0[3]    = { -PROK2_L,  PROK2_HALF, Z_PROKLADKA2 };
+        double topRight0[3]   = {  PROK2_L,  PROK2_HALF, Z_PROKLADKA2 };
+        double rightTop0[3]   = {  PROK2_HALF,  PROK2_L, Z_PROKLADKA2 };
+        double rightBot0[3]   = {  PROK2_HALF, -PROK2_L, Z_PROKLADKA2 };
+        double botRight0[3]   = {  PROK2_L, -PROK2_HALF, Z_PROKLADKA2 };
+        double botLeft0[3]    = { -PROK2_L, -PROK2_HALF, Z_PROKLADKA2 };
+        double leftBot0[3]    = { -PROK2_HALF, -PROK2_L, Z_PROKLADKA2 };
+        double leftTop0[3]    = { -PROK2_HALF,  PROK2_L, Z_PROKLADKA2 };
+
+        double arcTRmid[3]    = {  PROK2_L + PROK2_S,  PROK2_L + PROK2_S, Z_PROKLADKA2 };
+        double arcBRmid[3]    = {  PROK2_L + PROK2_S, -PROK2_L - PROK2_S, Z_PROKLADKA2 };
+        double arcBLmid[3]    = { -PROK2_L - PROK2_S, -PROK2_L - PROK2_S, Z_PROKLADKA2 };
+        double arcTLmid[3]    = { -PROK2_L - PROK2_S,  PROK2_L + PROK2_S, Z_PROKLADKA2 };
+
+        errorCode = CreateLine(topLeft0, topRight0, prok2Curves[0]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(topRight0, arcTRmid, rightTop0, prok2Curves[1]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(rightTop0, rightBot0, prok2Curves[2]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(rightBot0, arcBRmid, botRight0, prok2Curves[3]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(botRight0, botLeft0, prok2Curves[4]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(botLeft0, arcBLmid, leftBot0, prok2Curves[5]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(leftBot0, leftTop0, prok2Curves[6]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(leftTop0, arcTLmid, topLeft0, prok2Curves[7]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = AddObjectsToSketch(prokladka2Sketch, 8, prok2Curves);
+        if (errorCode != 0) goto cleanup;
+
+        double dir[3] = { 0.0, 0.0, -1.0 };
+        errorCode = CreateExtrusion(prokladka2Sketch, "0", "5", dir, UF_NULLSIGN);
+        if (errorCode != 0) goto cleanup;
+
+        const double PROK2_HOLE_R    = 7.5;
+        const double PROK2_HOLE_POS  = 62.5;
+
+        const double prok2HolePos[4][2] = {
+            {  PROK2_HOLE_POS,  PROK2_HOLE_POS },
+            { -PROK2_HOLE_POS,  PROK2_HOLE_POS },
+            { -PROK2_HOLE_POS, -PROK2_HOLE_POS },
+            {  PROK2_HOLE_POS, -PROK2_HOLE_POS }
+        };
+
+        const char* prok2HoleNames[4] = {
+            "Sketch_Prok2_Hole_0",
+            "Sketch_Prok2_Hole_1",
+            "Sketch_Prok2_Hole_2",
+            "Sketch_Prok2_Hole_3"
+        };
+
+        errorCode = BuildHoles(prok2HolePos, prok2HoleNames, Z_PROKLADKA2, PROK2_HOLE_R, "5");
+        if (errorCode != 0) goto cleanup;
+
+        tag_t prok2CenterSketch = NULL_TAG;
+        tag_t prok2CenterCircle = NULL_TAG;
+
+        errorCode = CreateSketchOnPlane("Sketch_Prok2_Center", Z_PROKLADKA2, prok2CenterSketch);
+        if (errorCode != 0) goto cleanup;
+
+        const double PROK2_CENTER_R = 40.0;
+        errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA2, PROK2_CENTER_R, prok2CenterCircle);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = AddObjectsToSketch(prok2CenterSketch, 1, &prok2CenterCircle);
+        if (errorCode != 0) goto cleanup;
+
+        {
+            double dir[3] = { 0.0, 0.0, -1.0 };
+            errorCode = CreateExtrusion(prok2CenterSketch, "0", "5", dir, UF_NEGATIVE);
+            if (errorCode != 0) goto cleanup;
+        }
     }
 
 cleanup:

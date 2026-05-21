@@ -1,4 +1,5 @@
 ﻿#include <uf.h>
+#include <uf_curve.h>
 #include "geometry.h"
 #include "sketch.h"
 #include "features.h"
@@ -347,6 +348,66 @@ void ufusr(char* param, int* retcode, int paramLen)
             double dir[3] = { 0.0, 0.0, 1.0 };
             errorCode = CreateExtrusion(kr1CenterSketch, "0", "14", dir, UF_NEGATIVE);
             if (errorCode != 0) goto cleanup;
+        }
+    }
+
+    {
+        const double Z_KORPUS_PATRUBOK = 0.0;
+        const double KP_OUTER_R = 30.0;
+        const double KP_INNER_R = 25.0;
+
+        tag_t kpSketch = NULL_TAG;
+        tag_t kpOuter  = NULL_TAG;
+        tag_t kpInner  = NULL_TAG;
+
+        errorCode = CreateSketchOnPlane("Sketch_Korpus_Patrubok", Z_KORPUS_PATRUBOK, kpSketch);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS_PATRUBOK, KP_OUTER_R, kpOuter);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS_PATRUBOK, KP_INNER_R, kpInner);
+        if (errorCode != 0) goto cleanup;
+
+        {
+            tag_t objs[2] = { kpOuter, kpInner };
+            errorCode = AddObjectsToSketch(kpSketch, 2, objs);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        {
+            double dir[3] = { 0.0, 0.0, 1.0 };
+            errorCode = CreateExtrusion(kpSketch, "0", "105", dir, UF_POSITIVE);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        {
+            tag_t kpHoleSketch = NULL_TAG;
+
+            errorCode = CreateSketchOnPlaneZX("Sketch_KP_Hole", kpHoleSketch);
+            if (errorCode != 0) goto cleanup;
+
+            const double KP_HOLE_DIAM = 35.0;
+            const double KP_HOLE_R    = KP_HOLE_DIAM / 2.0;
+            const double KP_HOLE_Z    = 59.0;
+
+            tag_t kpHoleCircle = NULL_TAG;
+
+            double pt1[3] = { KP_HOLE_R, 0.0, KP_HOLE_Z };
+            double pt2[3] = { -KP_HOLE_R, 0.0, KP_HOLE_Z };
+            double pt3[3] = { 0.0, 0.0, KP_HOLE_Z + KP_HOLE_R };
+
+            errorCode = UF_CURVE_create_arc_thru_3pts(2, pt1, pt2, pt3, &kpHoleCircle);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = AddObjectsToSketch(kpHoleSketch, 1, &kpHoleCircle);
+            if (errorCode != 0) goto cleanup;
+
+            {
+                double dir[3] = { 0.0, 1.0, 0.0 };
+                errorCode = CreateExtrusion(kpHoleSketch, "0", "60", dir, UF_NEGATIVE);
+                if (errorCode != 0) goto cleanup;
+            }
         }
     }
 

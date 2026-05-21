@@ -7,6 +7,11 @@ int CreateSketchOnPlane(
     tag_t&      sketchTag
 );
 
+int CreateSketchOnPlaneZX(
+    const char* name,
+    tag_t&      sketchTag
+);
+
 int AddObjectsToSketch(
     tag_t       sketchTag,
     int         count,

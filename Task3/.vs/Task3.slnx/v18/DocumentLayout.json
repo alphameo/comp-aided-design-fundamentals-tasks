@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\a1pha\\Education\\University\\Course_3-2\\\u0410\u0432\u0442\u041F\u0440\u043E\u0435\u043A\u0442\\Homework\\Task3\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{7B997775-CD31-447C-92AE-39114C27CA61}|Task3.vcxproj|D:\\a1pha\\Education\\University\\Course_3-2\\\u0410\u0432\u0442\u041F\u0440\u043E\u0435\u043A\u0442\\Homework\\Task3\\Task3.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{7B997775-CD31-447C-92AE-39114C27CA61}|Task3.vcxproj|solutionrelative:Task3.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Task3.cpp",
+              "DocumentMoniker": "D:\\a1pha\\Education\\University\\Course_3-2\\\u0410\u0432\u0442\u041F\u0440\u043E\u0435\u043A\u0442\\Homework\\Task3\\Task3.cpp",
+              "RelativeDocumentMoniker": "Task3.cpp",
+              "ToolTip": "D:\\a1pha\\Education\\University\\Course_3-2\\\u0410\u0432\u0442\u041F\u0440\u043E\u0435\u043A\u0442\\Homework\\Task3\\Task3.cpp",
+              "RelativeToolTip": "Task3.cpp",
+              "ViewState": "AgIAAJ0AAAAAAAAAAAAowLYAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-05-15T19:40:46.976Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

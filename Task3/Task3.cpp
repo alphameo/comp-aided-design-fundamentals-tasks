@@ -44,15 +44,15 @@ void ufusr(char* param, int* retcode, int paramLen)
         return;
     }
 
-    const double Z_SKETCH  = 119.0;
-    const double R_OUTER   = 70.0;
-    const double R_INNER   = 25.0;
-    const double Z_TOP     = 123.0;
-    const double R_CYL     = R_OUTER;
-    const double Z_CYL_TOP = 139.0;
-    const double R_HOLE    = 6.5;
-    const double R_PITCH   = 50.0;
-    const double R_BORE    = 27.5;
+    const double Z_PROKLADKA1       = 119.0;
+    const double R_PROKLADKA1_OUTER = 70.0;
+    const double R_PROKLADKA1_INNER = 25.0;
+    const double Z_PROKLADKA1_TOP   = 123.0;
+    const double R_ZAGLUSHKA        = R_PROKLADKA1_OUTER;
+    const double Z_ZAGLUSHKA_TOP    = 139.0;
+    const double R_HOLE             = 6.5;
+    const double R_PITCH            = 50.0;
+    const double R_ZAGLUSHKA_BORE   = 27.5;
 
     const double positions[4][2] = {
         {  R_PITCH,  0.0 },
@@ -61,82 +61,82 @@ void ufusr(char* param, int* retcode, int paramLen)
         {  0.0, -R_PITCH }
     };
 
-    const char* holeNames[4] = {
-        "Sketch_Hole_0",
-        "Sketch_Hole_1",
-        "Sketch_Hole_2",
-        "Sketch_Hole_3"
+    const char* prokladka1HoleNames[4] = {
+        "Sketch_Prok1_Hole_0",
+        "Sketch_Prok1_Hole_1",
+        "Sketch_Prok1_Hole_2",
+        "Sketch_Prok1_Hole_3"
     };
 
-    const char* topHoleNames[4] = {
-        "Sketch_TopHole_0",
-        "Sketch_TopHole_1",
-        "Sketch_TopHole_2",
-        "Sketch_TopHole_3"
+    const char* zaglushkaHoleNames[4] = {
+        "Sketch_Zag_Hole_0",
+        "Sketch_Zag_Hole_1",
+        "Sketch_Zag_Hole_2",
+        "Sketch_Zag_Hole_3"
     };
 
-    tag_t sketchTag   = NULL_TAG;
-    tag_t outerCircle = NULL_TAG;
-    tag_t innerCircle = NULL_TAG;
-    tag_t cylSketch   = NULL_TAG;
-    tag_t cylCircle   = NULL_TAG;
-    tag_t boreSketch  = NULL_TAG;
-    tag_t boreCircle  = NULL_TAG;
+    tag_t prokladka1Sketch      = NULL_TAG;
+    tag_t prokladka1Outer       = NULL_TAG;
+    tag_t prokladka1Inner       = NULL_TAG;
+    tag_t zaglushkaSketch       = NULL_TAG;
+    tag_t zaglushkaCircle       = NULL_TAG;
+    tag_t zaglushkaBoreSketch   = NULL_TAG;
+    tag_t zaglushkaBoreCircle   = NULL_TAG;
 
-    errorCode = CreateSketchOnPlane("Sketch_Base", Z_SKETCH, sketchTag);
+    errorCode = CreateSketchOnPlane("Sketch_Prokladka1", Z_PROKLADKA1, prokladka1Sketch);
     if (errorCode != 0) goto cleanup;
 
-    errorCode = CreateCircle(0.0, 0.0, Z_SKETCH, R_OUTER, outerCircle);
+    errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_OUTER, prokladka1Outer);
     if (errorCode != 0) goto cleanup;
 
-    errorCode = CreateCircle(0.0, 0.0, Z_SKETCH, R_INNER, innerCircle);
+    errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_INNER, prokladka1Inner);
     if (errorCode != 0) goto cleanup;
 
     {
-        tag_t objects[2] = { outerCircle, innerCircle };
-        errorCode = AddObjectsToSketch(sketchTag, 2, objects);
+        tag_t objects[2] = { prokladka1Outer, prokladka1Inner };
+        errorCode = AddObjectsToSketch(prokladka1Sketch, 2, objects);
         if (errorCode != 0) goto cleanup;
     }
 
     {
         double dir[3] = { 0.0, 0.0, 1.0 };
-        errorCode = CreateExtrusion(sketchTag, "0", "4", dir, UF_NULLSIGN);
+        errorCode = CreateExtrusion(prokladka1Sketch, "0", "4", dir, UF_NULLSIGN);
         if (errorCode != 0) goto cleanup;
     }
 
-    errorCode = BuildHoles(positions, holeNames, Z_TOP, R_HOLE, "4");
+    errorCode = BuildHoles(positions, prokladka1HoleNames, Z_PROKLADKA1_TOP, R_HOLE, "4");
     if (errorCode != 0) goto cleanup;
 
-    errorCode = CreateSketchOnPlane("Sketch_Cylinder", Z_TOP, cylSketch);
+    errorCode = CreateSketchOnPlane("Sketch_Zaglushka", Z_PROKLADKA1_TOP, zaglushkaSketch);
     if (errorCode != 0) goto cleanup;
 
-    errorCode = CreateCircle(0.0, 0.0, Z_TOP, R_CYL, cylCircle);
+    errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1_TOP, R_ZAGLUSHKA, zaglushkaCircle);
     if (errorCode != 0) goto cleanup;
 
-    errorCode = AddObjectsToSketch(cylSketch, 1, &cylCircle);
+    errorCode = AddObjectsToSketch(zaglushkaSketch, 1, &zaglushkaCircle);
     if (errorCode != 0) goto cleanup;
 
     {
         double dir[3] = { 0.0, 0.0, 1.0 };
-        errorCode = CreateExtrusion(cylSketch, "0", "16", dir, UF_NULLSIGN);
+        errorCode = CreateExtrusion(zaglushkaSketch, "0", "16", dir, UF_NULLSIGN);
         if (errorCode != 0) goto cleanup;
     }
 
-    errorCode = BuildHoles(positions, topHoleNames, Z_CYL_TOP, R_HOLE, "16");
+    errorCode = BuildHoles(positions, zaglushkaHoleNames, Z_ZAGLUSHKA_TOP, R_HOLE, "16");
     if (errorCode != 0) goto cleanup;
 
-    errorCode = CreateSketchOnPlane("Sketch_Bore", Z_CYL_TOP, boreSketch);
+    errorCode = CreateSketchOnPlane("Sketch_Zag_Bore", Z_ZAGLUSHKA_TOP, zaglushkaBoreSketch);
     if (errorCode != 0) goto cleanup;
 
-    errorCode = CreateCircle(0.0, 0.0, Z_CYL_TOP, R_BORE, boreCircle);
+    errorCode = CreateCircle(0.0, 0.0, Z_ZAGLUSHKA_TOP, R_ZAGLUSHKA_BORE, zaglushkaBoreCircle);
     if (errorCode != 0) goto cleanup;
 
-    errorCode = AddObjectsToSketch(boreSketch, 1, &boreCircle);
+    errorCode = AddObjectsToSketch(zaglushkaBoreSketch, 1, &zaglushkaBoreCircle);
     if (errorCode != 0) goto cleanup;
 
     {
         double dir[3] = { 0.0, 0.0, -1.0 };
-        errorCode = CreateExtrusion(boreSketch, "0", "5", dir, UF_NEGATIVE);
+        errorCode = CreateExtrusion(zaglushkaBoreSketch, "0", "5", dir, UF_NEGATIVE);
         if (errorCode != 0) goto cleanup;
     }
 

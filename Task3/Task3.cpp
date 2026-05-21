@@ -238,6 +238,126 @@ void ufusr(char* param, int* retcode, int paramLen)
         }
     }
 
+    {
+        const double Z_FLANETZ    = -5.0;
+        const double FL_HALF      = 80.0;
+        const double FL_RADIUS    = 20.0;
+        const double FL_L         = FL_HALF - FL_RADIUS;
+        const double FL_S         = FL_RADIUS * 0.7071067811865476;
+        const double FL_HOLE_R    = 7.5;
+        const double FL_HOLE_POS  = 62.5;
+
+        tag_t flSketch = NULL_TAG;
+        tag_t flCurves[8] = { NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG,
+                              NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG };
+
+        errorCode = CreateSketchOnPlane("Sketch_Flanetz", Z_FLANETZ, flSketch);
+        if (errorCode != 0) goto cleanup;
+
+        double topLeft0[3]    = { -FL_L,  FL_HALF, Z_FLANETZ };
+        double topRight0[3]   = {  FL_L,  FL_HALF, Z_FLANETZ };
+        double rightTop0[3]   = {  FL_HALF,  FL_L, Z_FLANETZ };
+        double rightBot0[3]   = {  FL_HALF, -FL_L, Z_FLANETZ };
+        double botRight0[3]   = {  FL_L, -FL_HALF, Z_FLANETZ };
+        double botLeft0[3]    = { -FL_L, -FL_HALF, Z_FLANETZ };
+        double leftBot0[3]    = { -FL_HALF, -FL_L, Z_FLANETZ };
+        double leftTop0[3]    = { -FL_HALF,  FL_L, Z_FLANETZ };
+
+        double arcTRmid[3]    = {  FL_L + FL_S,  FL_L + FL_S, Z_FLANETZ };
+        double arcBRmid[3]    = {  FL_L + FL_S, -FL_L - FL_S, Z_FLANETZ };
+        double arcBLmid[3]    = { -FL_L - FL_S, -FL_L - FL_S, Z_FLANETZ };
+        double arcTLmid[3]    = { -FL_L - FL_S,  FL_L + FL_S, Z_FLANETZ };
+
+        errorCode = CreateLine(topLeft0, topRight0, flCurves[0]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(topRight0, arcTRmid, rightTop0, flCurves[1]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(rightTop0, rightBot0, flCurves[2]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(rightBot0, arcBRmid, botRight0, flCurves[3]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(botRight0, botLeft0, flCurves[4]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(botLeft0, arcBLmid, leftBot0, flCurves[5]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateLine(leftBot0, leftTop0, flCurves[6]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = CreateArc(leftTop0, arcTLmid, topLeft0, flCurves[7]);
+        if (errorCode != 0) goto cleanup;
+
+        errorCode = AddObjectsToSketch(flSketch, 8, flCurves);
+        if (errorCode != 0) goto cleanup;
+
+        {
+            double dir[3] = { 0.0, 0.0, -1.0 };
+            errorCode = CreateExtrusion(flSketch, "0", "25", dir, UF_NULLSIGN);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        const double flHolePos[4][2] = {
+            {  FL_HOLE_POS,  FL_HOLE_POS },
+            { -FL_HOLE_POS,  FL_HOLE_POS },
+            { -FL_HOLE_POS, -FL_HOLE_POS },
+            {  FL_HOLE_POS, -FL_HOLE_POS }
+        };
+
+        const char* flHoleNames[4] = {
+            "Sketch_Fl_Hole_0",
+            "Sketch_Fl_Hole_1",
+            "Sketch_Fl_Hole_2",
+            "Sketch_Fl_Hole_3"
+        };
+
+        errorCode = BuildHoles(flHolePos, flHoleNames, Z_FLANETZ, FL_HOLE_R, "25");
+        if (errorCode != 0) goto cleanup;
+
+        {
+            const double Z_FLANETZ_BOTTOM = -30.0;
+            const double FL_CENTER_R      = 40.0;
+
+            tag_t flCenterSketch = NULL_TAG;
+            tag_t flCenterCircle = NULL_TAG;
+
+            errorCode = CreateSketchOnPlane("Sketch_Fl_Center", Z_FLANETZ_BOTTOM, flCenterSketch);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = CreateCircle(0.0, 0.0, Z_FLANETZ_BOTTOM, FL_CENTER_R, flCenterCircle);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = AddObjectsToSketch(flCenterSketch, 1, &flCenterCircle);
+            if (errorCode != 0) goto cleanup;
+
+            double dir[3] = { 0.0, 0.0, -1.0 };
+            errorCode = CreateExtrusion(flCenterSketch, "0", "30", dir, UF_POSITIVE);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        {
+            tag_t flThroughSketch = NULL_TAG;
+            tag_t flThroughCircle = NULL_TAG;
+
+            errorCode = CreateSketchOnPlane("Sketch_Fl_Through", Z_FLANETZ, flThroughSketch);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = CreateCircle(0.0, 0.0, Z_FLANETZ, 25.3, flThroughCircle);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = AddObjectsToSketch(flThroughSketch, 1, &flThroughCircle);
+            if (errorCode != 0) goto cleanup;
+
+            double dir[3] = { 0.0, 0.0, -1.0 };
+            errorCode = CreateExtrusion(flThroughSketch, "0", "55", dir, UF_NEGATIVE);
+            if (errorCode != 0) goto cleanup;
+        }
+    }
+
 cleanup:
     if (errorCode != 0)
     {

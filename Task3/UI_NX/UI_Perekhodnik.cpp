@@ -254,9 +254,16 @@ static int CreatePartAndBuild(const std::string& fullPath)
         CreateDirRecursive(dir.c_str());
     }
 
+    tag_t partTag = NULL_TAG;
+
+    // if the part is already loaded, close it first
+    partTag = UF_PART_ask_part_tag(fullPath.c_str());
+    if (partTag != NULL_TAG)
+        UF_PART_close(partTag, 1, 1);
+
+    partTag = NULL_TAG;
     DeleteFileA(fullPath.c_str());
 
-    tag_t partTag = NULL_TAG;
     int errorCode = UF_PART_new(fullPath.c_str(), 1, &partTag);
     if (errorCode != 0)
         return errorCode;

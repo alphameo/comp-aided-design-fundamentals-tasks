@@ -6,9 +6,6 @@
 #include <uf.h>
 #include <uf_curve.h>
 
-// ==========================================================================
-// Shared constants
-// ==========================================================================
 static const double Z_PROKLADKA1       = 119.0;
 static const double R_PROKLADKA1_OUTER = 70.0;
 static const double R_PROKLADKA1_INNER = 25.0;
@@ -33,7 +30,6 @@ static const double PLATE_L         = PLATE_HALF - PLATE_RADIUS;
 static const double PLATE_S         = PLATE_RADIUS * 0.7071067811865476;
 static const char   TUBE_HEIGHT_STR[] = "105";
 
-// Hole positions on R_PITCH circle (every 90°)
 static const double PITCH_POS[4][2] = {
     {  R_PITCH,  0.0 },
     {  0.0,  R_PITCH },
@@ -41,9 +37,6 @@ static const double PITCH_POS[4][2] = {
     {  0.0, -R_PITCH }
 };
 
-// --------------------------------------------------------------------------
-// BuildHoles — 4 holes as UF_NEGATIVE extrusions at given positions
-// --------------------------------------------------------------------------
 static int BuildHoles(
     const double positions[4][2],
     const char*  names[4],
@@ -376,7 +369,6 @@ int BuildKorpusPatrubok(void)
         if (errorCode != 0) return errorCode;
     }
 
-    // Cross hole d35 at Z=59
     {
         tag_t kpHoleSketch = NULL_TAG;
 
@@ -492,7 +484,6 @@ int BuildBobyshka(void)
         if (errorCode != 0) return errorCode;
     }
 
-    // Вычитание внутренней полости трубы
     {
         tag_t boreSketch = NULL_TAG;
         tag_t boreCircle = NULL_TAG;
@@ -584,7 +575,6 @@ int BuildFlanetz(void)
         if (errorCode != 0) return errorCode;
     }
 
-    // Cylinder d80 downwards at Z=-30
     {
         tag_t flCenterSketch = NULL_TAG;
         tag_t flCenterCircle = NULL_TAG;
@@ -603,7 +593,6 @@ int BuildFlanetz(void)
         if (errorCode != 0) return errorCode;
     }
 
-    // Through hole R=25.3
     {
         tag_t flThroughSketch = NULL_TAG;
         tag_t flThroughCircle = NULL_TAG;
@@ -625,9 +614,6 @@ int BuildFlanetz(void)
     return 0;
 }
 
-// ==========================================================================
-// BuildAssembly — Must be called inside UF_initialize() / UF_terminate().
-// ==========================================================================
 int BuildAssembly(void)
 {
     int errorCode;

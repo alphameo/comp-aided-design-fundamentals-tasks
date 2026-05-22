@@ -4,6 +4,7 @@
 #include <uf_defs.h>
 #include <uf_ui_types.h>
 #include <iostream>
+#include <string>
 #include <NXOpen/Session.hxx>
 #include <NXOpen/UI.hxx>
 #include <NXOpen/NXMessageBox.hxx>
@@ -14,6 +15,7 @@
 #include <NXOpen/BlockStyler_PropertyList.hxx>
 #include <NXOpen/BlockStyler_Label.hxx>
 #include <NXOpen/BlockStyler_Button.hxx>
+#include <NXOpen/BlockStyler_StringBlock.hxx>
 
 using namespace std;
 using namespace NXOpen;
@@ -39,7 +41,9 @@ private:
     const char* theDlxFileName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
     NXOpen::BlockStyler::Label* label0;
-    NXOpen::BlockStyler::Button* button0;
+    NXOpen::BlockStyler::Button* button1;
+    NXOpen::BlockStyler::StringBlock* string0;
+    std::string m_savePath = "D:\\Temp\\NX\\Perekhodnik.prt";
 };
 
 #endif

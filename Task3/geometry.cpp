@@ -13,7 +13,7 @@ int CreateCircle(
     double point3[3] = { cx,          cy + radius, z };
 
     int errorCode = UF_CURVE_create_arc_thru_3pts(
-        2,          /* 2 = full circle */
+        2,
         point1,
         point2,
         point3,
@@ -45,7 +45,7 @@ int CreateArc(
     tag_t&       arcTag)
 {
     return UF_CURVE_create_arc_thru_3pts(
-        1,          /* 1 = arc (not full circle) */
+        1,
         p1, p2, p3,
         &arcTag);
 }

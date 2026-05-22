@@ -9,7 +9,6 @@ int CreateSketchOnPlane(
 {
     int errorCode = 0;
 
-    // UF_SKET_initialize_sketch expects a writable char array
     char sketchName[129];
     strcpy_s(sketchName, sizeof(sketchName), name);
 
@@ -54,7 +53,6 @@ int CreateSketchOnPlaneZX(
     if (errorCode != 0)
         return errorCode;
 
-    // ZX-plane (Y=0): sketch X = world X, sketch Y = world Z
     double matrix[9] =
     {
         1.0, 0.0, 0.0,

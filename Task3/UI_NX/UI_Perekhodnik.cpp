@@ -1,19 +1,20 @@
-// windows.h must come before NXOpen headers — its macros (CreateDialog,
-// byte) would otherwise clash with NXOpen::UI::CreateDialog() etc.
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#include <objbase.h>
+#include <shobjidl.h>
 #undef CreateDialog
 #undef byte
 
 #include "UI_Perekhodnik.hpp"
 #include "../build.h"
 
+#include <uf_part.h>
+#include <string>
+
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
-// Marker whose address is guaranteed to be inside Task3.dll,
-// used by GetModuleHandleEx to resolve the DLL's own path.
 namespace {
     static void __dllMarker() {}
 }
@@ -93,7 +94,8 @@ void UI_Perekhodnik::initialize_cb()
     try
     {
         label0 = dynamic_cast<NXOpen::BlockStyler::Label*>(theDialog->TopBlock()->FindBlock("label0"));
-        button0 = dynamic_cast<NXOpen::BlockStyler::Button*>(theDialog->TopBlock()->FindBlock("button0"));
+        button1 = dynamic_cast<NXOpen::BlockStyler::Button*>(theDialog->TopBlock()->FindBlock("button1"));
+        string0 = dynamic_cast<NXOpen::BlockStyler::StringBlock*>(theDialog->TopBlock()->FindBlock("string0"));
     }
     catch(exception& ex)
     {
@@ -105,6 +107,8 @@ void UI_Perekhodnik::dialogShown_cb()
 {
     try
     {
+        if (string0 != NULL)
+            string0->SetValue(m_savePath);
     }
     catch(exception& ex)
     {
@@ -112,31 +116,79 @@ void UI_Perekhodnik::dialogShown_cb()
     }
 }
 
-int UI_Perekhodnik::apply_cb()
+static int BrowseForSaveFile(std::string& outPath, const std::string& defPath)
 {
-    int errorCode = 0;
-    try
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    BOOL needUninit = (hr == S_OK);
+    if (FAILED(hr))
+        return 1;
+
+    IFileSaveDialog* pfd = NULL;
+    hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL,
+                          IID_PPV_ARGS(&pfd));
+
+    int result = 1;
+    if (SUCCEEDED(hr))
     {
-        BuildAssembly();
+        COMDLG_FILTERSPEC filter[] = {
+            { L"NX Part Files", L"*.prt" },
+            { L"All Files",     L"*.*"   }
+        };
+        pfd->SetFileTypes(2, filter);
+        pfd->SetDefaultExtension(L"prt");
+
+        {
+            std::wstring wdef;
+            wdef.assign(defPath.begin(), defPath.end());
+            pfd->SetFileName(wdef.c_str());
+        }
+
+        hr = pfd->Show(NULL);
+        if (SUCCEEDED(hr))
+        {
+            IShellItem* psi = NULL;
+            hr = pfd->GetResult(&psi);
+            if (SUCCEEDED(hr))
+            {
+                PWSTR path = NULL;
+                hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &path);
+                if (SUCCEEDED(hr))
+                {
+                    char folder[MAX_PATH];
+                    WideCharToMultiByte(CP_ACP, 0, path, -1,
+                                        folder, MAX_PATH, NULL, NULL);
+                    outPath = folder;
+                    result = 0;
+                    CoTaskMemFree(path);
+                }
+                psi->Release();
+            }
+        }
+        pfd->Release();
     }
-    catch(exception& ex)
-    {
-        errorCode = 1;
-        UI_Perekhodnik::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-    }
-    return errorCode;
+
+    if (needUninit)
+        CoUninitialize();
+    return result;
 }
 
 int UI_Perekhodnik::update_cb(NXOpen::BlockStyler::UIBlock* block)
 {
     try
     {
-        if(block == label0)
+        if (block == string0)
         {
+            if (string0->Value().GetLocaleText())
+                m_savePath = string0->Value().GetLocaleText();
         }
-        else if(block == button0)
+        else if (block == button1)
         {
-            BuildAssembly();
+            std::string path;
+            if (BrowseForSaveFile(path, m_savePath) == 0)
+            {
+                m_savePath = path;
+                string0->SetValue(m_savePath);
+            }
         }
     }
     catch(exception& ex)
@@ -146,19 +198,86 @@ int UI_Perekhodnik::update_cb(NXOpen::BlockStyler::UIBlock* block)
     return 0;
 }
 
-int UI_Perekhodnik::ok_cb()
+static void CreateDirRecursive(const char* path)
 {
-    int errorCode = 0;
+    char tmp[MAX_PATH];
+    strcpy(tmp, path);
+    for (char* p = tmp; *p; p++)
+        if (*p == '/') *p = '\\';
+    for (char* p = tmp + 1; *p; p++)
+    {
+        if (*p == '\\')
+        {
+            char c = *p;
+            *p = '\0';
+            CreateDirectoryA(tmp, NULL);
+            *p = c;
+        }
+    }
+    CreateDirectoryA(tmp, NULL);
+}
+
+static int CreatePartAndBuild(const std::string& fullPath)
+{
+    std::string dir = fullPath;
+    size_t pos = dir.find_last_of("\\/");
+    if (pos != std::string::npos)
+    {
+        dir.resize(pos);
+        CreateDirRecursive(dir.c_str());
+    }
+
+    DeleteFileA(fullPath.c_str());
+
+    tag_t partTag = NULL_TAG;
+    int errorCode = UF_PART_new(fullPath.c_str(), 1, &partTag);
+    if (errorCode != 0)
+        return errorCode;
+
+    errorCode = BuildAssembly();
+    if (errorCode != 0)
+        return errorCode;
+
+    return UF_PART_save();
+}
+
+int UI_Perekhodnik::apply_cb()
+{
     try
     {
-        errorCode = apply_cb();
+        if (string0->Value().GetLocaleText())
+            m_savePath = string0->Value().GetLocaleText();
+
+        if (m_savePath.empty())
+        {
+            UI_Perekhodnik::theUI->NXMessageBox()->Show("Error",
+                NXOpen::NXMessageBox::DialogTypeError, "Save path is empty.");
+            return 1;
+        }
+
+        int result = CreatePartAndBuild(m_savePath);
+        if (result != 0)
+        {
+            char msg[256];
+            sprintf(msg, "Failed to create part and build.\n%s\nError: %d",
+                    m_savePath.c_str(), result);
+            UI_Perekhodnik::theUI->NXMessageBox()->Show("Error",
+                NXOpen::NXMessageBox::DialogTypeError, msg);
+            return 1;
+        }
+
+        return 0;
     }
     catch(exception& ex)
     {
-        errorCode = 1;
         UI_Perekhodnik::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+        return 1;
     }
-    return errorCode;
+}
+
+int UI_Perekhodnik::ok_cb()
+{
+    return apply_cb();
 }
 
 PropertyList* UI_Perekhodnik::GetBlockProperties(const char *blockID)

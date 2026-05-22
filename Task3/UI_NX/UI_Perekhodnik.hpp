@@ -46,7 +46,7 @@ private:
     NXOpen::BlockStyler::Button* button1;
     NXOpen::BlockStyler::StringBlock* string0;
     NXOpen::BlockStyler::Enumeration* bobSelector;
-    std::string m_savePath = "D:\\Temp\\NX\\Perekhodnik.prt";
+    std::string m_savePath = "D:\\Temp\\NX\\Alekseev_P_9_Perekhodnik.prt";
     std::string m_previewPath;
 };
 

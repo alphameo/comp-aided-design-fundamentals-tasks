@@ -41,21 +41,36 @@ UI_Perekhodnik::UI_Perekhodnik()
             static char dlxPath[MAX_PATH];
             static char pngPath[MAX_PATH];
             GetModuleFileNameA(hMod, dllPath, MAX_PATH);
-            char *lastSlash = strrchr(dllPath, '\\');
-            if (lastSlash)
-            {
-                *(lastSlash + 1) = '\0';
-                strcpy(dlxPath, dllPath);
-                strcat(dlxPath, "UI_Perekhodnik.dlx");
-                theDlxFileName = dlxPath;
 
-                strcpy(pngPath, dllPath);
-                strcat(pngPath, "preview.bmp");
-                m_previewPath = pngPath;
-            }
-            else
+            // DLL: Task3\x64\Release\Task3.dll
+            // .dlx: Task3\UI_NX\UI_Perekhodnik.dlx
             {
-                theDlxFileName = "UI_Perekhodnik.dlx";
+                char tmp[MAX_PATH];
+                strcpy(tmp, dllPath);
+                char *p = strrchr(tmp, '\\');
+                if (p) *p = '\0';
+                p = strrchr(tmp, '\\');
+                if (p) *p = '\0';  // now at x64
+                p = strrchr(tmp, '\\');
+                if (p) *p = '\0';  // now at Task3 root
+                strcat(tmp, "\\UI_NX\\UI_Perekhodnik.dlx");
+                strcpy(dlxPath, tmp);
+                theDlxFileName = dlxPath;
+            }
+
+            // preview: Task3\UI_NX\preview.bmp
+            {
+                char tmp[MAX_PATH];
+                strcpy(tmp, dllPath);
+                char *p = strrchr(tmp, '\\');
+                if (p) *p = '\0';
+                p = strrchr(tmp, '\\');
+                if (p) *p = '\0';
+                p = strrchr(tmp, '\\');
+                if (p) *p = '\0';
+                strcat(tmp, "\\UI_NX\\preview.bmp");
+                strcpy(pngPath, tmp);
+                m_previewPath = pngPath;
             }
         }
 

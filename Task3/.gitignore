@@ -1,0 +1,34 @@
+## Visual Studio
+.vs/
+*.suo
+*.user
+*.sln.docstates
+
+## Build outputs — all configs
+x64/
+Release/
+Debug/
+Win32/
+
+## Intermediate / generated
+*.obj
+*.dll
+*.pdb
+*.ipdb
+*.iobj
+*.tlog
+*.log
+*.lastbuildstate
+*.unsuccessfulbuild
+*.FileListAbsolute.txt
+*.opendb
+*.db-shm
+*.db-wal
+*.vsidx
+
+## VC++ specific
+*.ipch
+Browse.VC.*
+
+## Windows image cache
+Thumbs.db

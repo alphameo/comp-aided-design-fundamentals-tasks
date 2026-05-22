@@ -146,14 +146,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Task3.cpp" />
+    <ClCompile Include="build.cpp" />
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="sketch.cpp" />
     <ClCompile Include="features.cpp" />
+    <ClCompile Include="UI_NX/UI_Perekhodnik.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="build.h" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="sketch.h" />
     <ClInclude Include="features.h" />
+    <ClInclude Include="UI_NX/UI_Perekhodnik.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

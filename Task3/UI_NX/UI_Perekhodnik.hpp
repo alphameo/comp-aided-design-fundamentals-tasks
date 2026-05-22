@@ -16,6 +16,7 @@
 #include <NXOpen/BlockStyler_Label.hxx>
 #include <NXOpen/BlockStyler_Button.hxx>
 #include <NXOpen/BlockStyler_StringBlock.hxx>
+#include <NXOpen/BlockStyler_Enumeration.hxx>
 
 using namespace std;
 using namespace NXOpen;
@@ -43,6 +44,7 @@ private:
     NXOpen::BlockStyler::Label* label0;
     NXOpen::BlockStyler::Button* button1;
     NXOpen::BlockStyler::StringBlock* string0;
+    NXOpen::BlockStyler::Enumeration* bobSelector;
     std::string m_savePath = "D:\\Temp\\NX\\Perekhodnik.prt";
 };
 

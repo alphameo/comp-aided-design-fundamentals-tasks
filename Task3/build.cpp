@@ -5,6 +5,7 @@
 
 #include <uf.h>
 #include <uf_curve.h>
+#include <stdio.h>
 
 static const double Z_PROKLADKA1       = 119.0;
 static const double R_PROKLADKA1_OUTER = 70.0;
@@ -36,6 +37,18 @@ static const double PITCH_POS[4][2] = {
     { -R_PITCH,  0.0 },
     {  0.0, -R_PITCH }
 };
+
+double g_bobLength = 30.0;
+
+static const double BOB_LENGTHS[] = { 20.0, 30.0, 40.0 };
+static const int NUM_BOB_LENGTHS = sizeof(BOB_LENGTHS) / sizeof(BOB_LENGTHS[0]);
+
+void SetBobLength(int index)
+{
+    if (index < 0) index = 0;
+    if (index >= NUM_BOB_LENGTHS) index = NUM_BOB_LENGTHS - 1;
+    g_bobLength = BOB_LENGTHS[index];
+}
 
 static int BuildHoles(
     const double positions[4][2],
@@ -479,8 +492,10 @@ int BuildBobyshka(void)
     }
 
     {
+        char lenStr[16];
+        sprintf_s(lenStr, sizeof(lenStr), "%.0f", g_bobLength);
         double dir[3] = { 0.0, 1.0, 0.0 };
-        errorCode = CreateExtrusion(bobSketch, "0", "15", dir, UF_POSITIVE);
+        errorCode = CreateExtrusion(bobSketch, "0", lenStr, dir, UF_POSITIVE);
         if (errorCode != 0) return errorCode;
     }
 

@@ -1,6 +1,10 @@
 #ifndef BUILD_H
 #define BUILD_H
 
+extern double g_bobLength;
+
+void SetBobLength(int index);
+
 int BuildAssembly(void);
 
 int BuildProkladka1(void);

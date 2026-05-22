@@ -9,7 +9,7 @@
 //        Created by: IA1phaI
 //              Version: NX 10
 //              Date: 05-22-2026  (Format: mm-dd-yyyy)
-//              Time: 21:18 (Format: hh-mm)
+//              Time: 22:44 (Format: hh-mm)
 //
 //==============================================================================
 
@@ -189,6 +189,7 @@ void UI_Perekhodnik::initialize_cb()
     try
     {
         label0 = dynamic_cast<NXOpen::BlockStyler::Label*>(theDialog->TopBlock()->FindBlock("label0"));
+        bobSelector = dynamic_cast<NXOpen::BlockStyler::Enumeration*>(theDialog->TopBlock()->FindBlock("bobSelector"));
         group = dynamic_cast<NXOpen::BlockStyler::Group*>(theDialog->TopBlock()->FindBlock("group"));
         string0 = dynamic_cast<NXOpen::BlockStyler::StringBlock*>(theDialog->TopBlock()->FindBlock("string0"));
         button1 = dynamic_cast<NXOpen::BlockStyler::Button*>(theDialog->TopBlock()->FindBlock("button1"));
@@ -245,6 +246,10 @@ int UI_Perekhodnik::update_cb(NXOpen::BlockStyler::UIBlock* block)
     try
     {
         if(block == label0)
+        {
+        //---------Enter your code here-----------
+        }
+        else if(block == bobSelector)
         {
         //---------Enter your code here-----------
         }

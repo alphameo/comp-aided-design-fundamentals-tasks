@@ -9,7 +9,7 @@
 //        Created by: IA1phaI
 //              Version: NX 10
 //              Date: 05-22-2026  (Format: mm-dd-yyyy)
-//              Time: 21:18
+//              Time: 22:44
 //
 //==============================================================================
 
@@ -31,6 +31,7 @@
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
 #include <NXOpen/BlockStyler_Label.hxx>
+#include <NXOpen/BlockStyler_Enumeration.hxx>
 #include <NXOpen/BlockStyler_Group.hxx>
 #include <NXOpen/BlockStyler_StringBlock.hxx>
 #include <NXOpen/BlockStyler_Button.hxx>
@@ -69,6 +70,7 @@ private:
     const char* theDlxFileName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
     NXOpen::BlockStyler::Label* label0;// Block type: Label
+    NXOpen::BlockStyler::Enumeration* bobSelector;// Block type: Enumeration
     NXOpen::BlockStyler::Group* group;// Block type: Group
     NXOpen::BlockStyler::StringBlock* string0;// Block type: String
     NXOpen::BlockStyler::Button* button1;// Block type: Button

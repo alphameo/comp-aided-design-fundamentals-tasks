@@ -96,6 +96,7 @@ void UI_Perekhodnik::initialize_cb()
         label0 = dynamic_cast<NXOpen::BlockStyler::Label*>(theDialog->TopBlock()->FindBlock("label0"));
         button1 = dynamic_cast<NXOpen::BlockStyler::Button*>(theDialog->TopBlock()->FindBlock("button1"));
         string0 = dynamic_cast<NXOpen::BlockStyler::StringBlock*>(theDialog->TopBlock()->FindBlock("string0"));
+        bobSelector = dynamic_cast<NXOpen::BlockStyler::Enumeration*>(theDialog->TopBlock()->FindBlock("bobSelector"));
     }
     catch(exception& ex)
     {
@@ -109,6 +110,13 @@ void UI_Perekhodnik::dialogShown_cb()
     {
         if (string0 != NULL)
             string0->SetValue(m_savePath);
+
+        if (bobSelector != NULL)
+        {
+            PropertyList* props = bobSelector->GetProperties();
+            props->SetEnum("Value", 1);
+            delete props;
+        }
     }
     catch(exception& ex)
     {
@@ -190,6 +198,13 @@ int UI_Perekhodnik::update_cb(NXOpen::BlockStyler::UIBlock* block)
                 string0->SetValue(m_savePath);
             }
         }
+        else if (block == bobSelector)
+        {
+            PropertyList* props = bobSelector->GetProperties();
+            int sel = props->GetEnum("Value");
+            SetBobLength(sel);
+            delete props;
+        }
     }
     catch(exception& ex)
     {
@@ -247,6 +262,14 @@ int UI_Perekhodnik::apply_cb()
     {
         if (string0->Value().GetLocaleText())
             m_savePath = string0->Value().GetLocaleText();
+
+        if (bobSelector != NULL)
+        {
+            PropertyList* props = bobSelector->GetProperties();
+            int sel = props->GetEnum("Value");
+            SetBobLength(sel);
+            delete props;
+        }
 
         if (m_savePath.empty())
         {

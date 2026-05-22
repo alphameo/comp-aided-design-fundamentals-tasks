@@ -15,6 +15,7 @@
 #include <NXOpen/BlockStyler_PropertyList.hxx>
 #include <NXOpen/BlockStyler_Label.hxx>
 #include <NXOpen/BlockStyler_Button.hxx>
+#include <NXOpen/BlockStyler_Button.hxx>
 #include <NXOpen/BlockStyler_StringBlock.hxx>
 #include <NXOpen/BlockStyler_Enumeration.hxx>
 
@@ -41,11 +42,12 @@ public:
 private:
     const char* theDlxFileName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
-    NXOpen::BlockStyler::Label* label0;
+    NXOpen::BlockStyler::Button* bitmap0;
     NXOpen::BlockStyler::Button* button1;
     NXOpen::BlockStyler::StringBlock* string0;
     NXOpen::BlockStyler::Enumeration* bobSelector;
     std::string m_savePath = "D:\\Temp\\NX\\Perekhodnik.prt";
+    std::string m_previewPath;
 };
 
 #endif

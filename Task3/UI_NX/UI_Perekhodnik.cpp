@@ -31,7 +31,7 @@ UI_Perekhodnik::UI_Perekhodnik()
 
         HMODULE hMod = NULL;
         if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-                               (LPCTSTR)__dllMarker, &hMod))
+                                (LPCTSTR)__dllMarker, &hMod))
         {
             theDlxFileName = "UI_Perekhodnik.dlx";
         }
@@ -39,6 +39,7 @@ UI_Perekhodnik::UI_Perekhodnik()
         {
             static char dllPath[MAX_PATH];
             static char dlxPath[MAX_PATH];
+            static char pngPath[MAX_PATH];
             GetModuleFileNameA(hMod, dllPath, MAX_PATH);
             char *lastSlash = strrchr(dllPath, '\\');
             if (lastSlash)
@@ -47,6 +48,10 @@ UI_Perekhodnik::UI_Perekhodnik()
                 strcpy(dlxPath, dllPath);
                 strcat(dlxPath, "UI_Perekhodnik.dlx");
                 theDlxFileName = dlxPath;
+
+                strcpy(pngPath, dllPath);
+                strcat(pngPath, "preview.bmp");
+                m_previewPath = pngPath;
             }
             else
             {
@@ -93,7 +98,7 @@ void UI_Perekhodnik::initialize_cb()
 {
     try
     {
-        label0 = dynamic_cast<NXOpen::BlockStyler::Label*>(theDialog->TopBlock()->FindBlock("label0"));
+        bitmap0 = dynamic_cast<NXOpen::BlockStyler::Button*>(theDialog->TopBlock()->FindBlock("bitmap0"));
         button1 = dynamic_cast<NXOpen::BlockStyler::Button*>(theDialog->TopBlock()->FindBlock("button1"));
         string0 = dynamic_cast<NXOpen::BlockStyler::StringBlock*>(theDialog->TopBlock()->FindBlock("string0"));
         bobSelector = dynamic_cast<NXOpen::BlockStyler::Enumeration*>(theDialog->TopBlock()->FindBlock("bobSelector"));
@@ -110,6 +115,13 @@ void UI_Perekhodnik::dialogShown_cb()
     {
         if (string0 != NULL)
             string0->SetValue(m_savePath);
+
+        if (bitmap0 != NULL && !m_previewPath.empty())
+        {
+            PropertyList* props = bitmap0->GetProperties();
+            props->SetString("Bitmap", m_previewPath.c_str());
+            delete props;
+        }
 
         if (bobSelector != NULL)
         {

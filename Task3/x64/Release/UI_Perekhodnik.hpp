@@ -9,7 +9,7 @@
 //        Created by: IA1phaI
 //              Version: NX 10
 //              Date: 05-22-2026  (Format: mm-dd-yyyy)
-//              Time: 22:44
+//              Time: 23:31
 //
 //==============================================================================
 
@@ -30,11 +30,10 @@
 #include <NXOpen/BlockStyler_UIBlock.hxx>
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
-#include <NXOpen/BlockStyler_Label.hxx>
+#include <NXOpen/BlockStyler_Button.hxx>
 #include <NXOpen/BlockStyler_Enumeration.hxx>
 #include <NXOpen/BlockStyler_Group.hxx>
 #include <NXOpen/BlockStyler_StringBlock.hxx>
-#include <NXOpen/BlockStyler_Button.hxx>
 
 //------------------------------------------------------------------------------
 // Namespaces needed for following template
@@ -69,7 +68,7 @@ public:
 private:
     const char* theDlxFileName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
-    NXOpen::BlockStyler::Label* label0;// Block type: Label
+    NXOpen::BlockStyler::Button* bitmap0;// Block type: Button
     NXOpen::BlockStyler::Enumeration* bobSelector;// Block type: Enumeration
     NXOpen::BlockStyler::Group* group;// Block type: Group
     NXOpen::BlockStyler::StringBlock* string0;// Block type: String

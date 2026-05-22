@@ -57,6 +57,18 @@ void ufusr(char* param, int* retcode, int paramLen)
     const double KP_HOLE_R          = 17.5;
     const double KP_HOLE_Z          = 59.0;
 
+    const double Z_ORIGIN        = 0.0;
+    const double PLATE_HALF      = 80.0;
+    const double PLATE_RADIUS    = 20.0;
+    const double TUBE_OUTER_R    = 30.0;
+    const double TUBE_INNER_R    = R_PROKLADKA1_INNER;
+    const double TUBE_HEIGHT     = 105.0;
+    const double CORNER_HOLE_R   = 7.5;
+    const double CORNER_HOLE_POS = 62.5;
+    const double PLATE_L         = PLATE_HALF - PLATE_RADIUS;
+    const double PLATE_S         = PLATE_RADIUS * 0.7071067811865476;
+    const char   TUBE_HEIGHT_STR[] = "105";
+
     const double positions[4][2] = {
         {  R_PITCH,  0.0 },
         {  0.0,  R_PITCH },
@@ -153,28 +165,24 @@ void ufusr(char* param, int* retcode, int paramLen)
     }
 
     {
-        const double Z_PROKLADKA2  = 0.0;
-        const double PROK2_HALF    = 80.0;
-        const double PROK2_RADIUS  = 20.0;
-        const double PROK2_L       = PROK2_HALF - PROK2_RADIUS;
-        const double PROK2_S       = PROK2_RADIUS * 0.7071067811865476;
+        const double Z_PROKLADKA2  = Z_ORIGIN;
 
         errorCode = CreateSketchOnPlane("Sketch_Prokladka2", Z_PROKLADKA2, prokladka2Sketch);
         if (errorCode != 0) goto cleanup;
 
-        double topLeft0[3]    = { -PROK2_L,  PROK2_HALF, Z_PROKLADKA2 };
-        double topRight0[3]   = {  PROK2_L,  PROK2_HALF, Z_PROKLADKA2 };
-        double rightTop0[3]   = {  PROK2_HALF,  PROK2_L, Z_PROKLADKA2 };
-        double rightBot0[3]   = {  PROK2_HALF, -PROK2_L, Z_PROKLADKA2 };
-        double botRight0[3]   = {  PROK2_L, -PROK2_HALF, Z_PROKLADKA2 };
-        double botLeft0[3]    = { -PROK2_L, -PROK2_HALF, Z_PROKLADKA2 };
-        double leftBot0[3]    = { -PROK2_HALF, -PROK2_L, Z_PROKLADKA2 };
-        double leftTop0[3]    = { -PROK2_HALF,  PROK2_L, Z_PROKLADKA2 };
+        double topLeft0[3]    = { -PLATE_L,  PLATE_HALF, Z_PROKLADKA2 };
+        double topRight0[3]   = {  PLATE_L,  PLATE_HALF, Z_PROKLADKA2 };
+        double rightTop0[3]   = {  PLATE_HALF,  PLATE_L, Z_PROKLADKA2 };
+        double rightBot0[3]   = {  PLATE_HALF, -PLATE_L, Z_PROKLADKA2 };
+        double botRight0[3]   = {  PLATE_L, -PLATE_HALF, Z_PROKLADKA2 };
+        double botLeft0[3]    = { -PLATE_L, -PLATE_HALF, Z_PROKLADKA2 };
+        double leftBot0[3]    = { -PLATE_HALF, -PLATE_L, Z_PROKLADKA2 };
+        double leftTop0[3]    = { -PLATE_HALF,  PLATE_L, Z_PROKLADKA2 };
 
-        double arcTRmid[3]    = {  PROK2_L + PROK2_S,  PROK2_L + PROK2_S, Z_PROKLADKA2 };
-        double arcBRmid[3]    = {  PROK2_L + PROK2_S, -PROK2_L - PROK2_S, Z_PROKLADKA2 };
-        double arcBLmid[3]    = { -PROK2_L - PROK2_S, -PROK2_L - PROK2_S, Z_PROKLADKA2 };
-        double arcTLmid[3]    = { -PROK2_L - PROK2_S,  PROK2_L + PROK2_S, Z_PROKLADKA2 };
+        double arcTRmid[3]    = {  PLATE_L + PLATE_S,  PLATE_L + PLATE_S, Z_PROKLADKA2 };
+        double arcBRmid[3]    = {  PLATE_L + PLATE_S, -PLATE_L - PLATE_S, Z_PROKLADKA2 };
+        double arcBLmid[3]    = { -PLATE_L - PLATE_S, -PLATE_L - PLATE_S, Z_PROKLADKA2 };
+        double arcTLmid[3]    = { -PLATE_L - PLATE_S,  PLATE_L + PLATE_S, Z_PROKLADKA2 };
 
         errorCode = CreateLine(topLeft0, topRight0, prok2Curves[0]);
         if (errorCode != 0) goto cleanup;
@@ -207,14 +215,11 @@ void ufusr(char* param, int* retcode, int paramLen)
         errorCode = CreateExtrusion(prokladka2Sketch, "0", "5", dir, UF_NULLSIGN);
         if (errorCode != 0) goto cleanup;
 
-        const double PROK2_HOLE_R    = 7.5;
-        const double PROK2_HOLE_POS  = 62.5;
-
         const double prok2HolePos[4][2] = {
-            {  PROK2_HOLE_POS,  PROK2_HOLE_POS },
-            { -PROK2_HOLE_POS,  PROK2_HOLE_POS },
-            { -PROK2_HOLE_POS, -PROK2_HOLE_POS },
-            {  PROK2_HOLE_POS, -PROK2_HOLE_POS }
+            {  CORNER_HOLE_POS,  CORNER_HOLE_POS },
+            { -CORNER_HOLE_POS,  CORNER_HOLE_POS },
+            { -CORNER_HOLE_POS, -CORNER_HOLE_POS },
+            {  CORNER_HOLE_POS, -CORNER_HOLE_POS }
         };
 
         const char* prok2HoleNames[4] = {
@@ -226,7 +231,7 @@ void ufusr(char* param, int* retcode, int paramLen)
 
         {
             double dir[3] = { 0.0, 0.0, -1.0 };
-            errorCode = BuildHoles(prok2HolePos, prok2HoleNames, Z_PROKLADKA2, PROK2_HOLE_R, "5", dir);
+            errorCode = BuildHoles(prok2HolePos, prok2HoleNames, Z_PROKLADKA2, CORNER_HOLE_R, "5", dir);
             if (errorCode != 0) goto cleanup;
         }
 
@@ -251,13 +256,7 @@ void ufusr(char* param, int* retcode, int paramLen)
     }
 
     {
-        const double Z_KORPUS1    = 0.0;
-        const double KR1_HALF     = 80.0;
-        const double KR1_RADIUS   = 20.0;
-        const double KR1_L        = KR1_HALF - KR1_RADIUS;
-        const double KR1_S        = KR1_RADIUS * 0.7071067811865476;
-        const double KR1_HOLE_R   = 7.5;
-        const double KR1_HOLE_POS = 62.5;
+        const double Z_KORPUS1    = Z_ORIGIN;
         const double KR1_CENTER_R = 25.0;
 
         tag_t kr1Sketch = NULL_TAG;
@@ -267,19 +266,19 @@ void ufusr(char* param, int* retcode, int paramLen)
         errorCode = CreateSketchOnPlane("Sketch_Korpus1", Z_KORPUS1, kr1Sketch);
         if (errorCode != 0) goto cleanup;
 
-        double topLeft0[3]    = { -KR1_L,  KR1_HALF, Z_KORPUS1 };
-        double topRight0[3]   = {  KR1_L,  KR1_HALF, Z_KORPUS1 };
-        double rightTop0[3]   = {  KR1_HALF,  KR1_L, Z_KORPUS1 };
-        double rightBot0[3]   = {  KR1_HALF, -KR1_L, Z_KORPUS1 };
-        double botRight0[3]   = {  KR1_L, -KR1_HALF, Z_KORPUS1 };
-        double botLeft0[3]    = { -KR1_L, -KR1_HALF, Z_KORPUS1 };
-        double leftBot0[3]    = { -KR1_HALF, -KR1_L, Z_KORPUS1 };
-        double leftTop0[3]    = { -KR1_HALF,  KR1_L, Z_KORPUS1 };
+        double topLeft0[3]    = { -PLATE_L,  PLATE_HALF, Z_KORPUS1 };
+        double topRight0[3]   = {  PLATE_L,  PLATE_HALF, Z_KORPUS1 };
+        double rightTop0[3]   = {  PLATE_HALF,  PLATE_L, Z_KORPUS1 };
+        double rightBot0[3]   = {  PLATE_HALF, -PLATE_L, Z_KORPUS1 };
+        double botRight0[3]   = {  PLATE_L, -PLATE_HALF, Z_KORPUS1 };
+        double botLeft0[3]    = { -PLATE_L, -PLATE_HALF, Z_KORPUS1 };
+        double leftBot0[3]    = { -PLATE_HALF, -PLATE_L, Z_KORPUS1 };
+        double leftTop0[3]    = { -PLATE_HALF,  PLATE_L, Z_KORPUS1 };
 
-        double arcTRmid[3]    = {  KR1_L + KR1_S,  KR1_L + KR1_S, Z_KORPUS1 };
-        double arcBRmid[3]    = {  KR1_L + KR1_S, -KR1_L - KR1_S, Z_KORPUS1 };
-        double arcBLmid[3]    = { -KR1_L - KR1_S, -KR1_L - KR1_S, Z_KORPUS1 };
-        double arcTLmid[3]    = { -KR1_L - KR1_S,  KR1_L + KR1_S, Z_KORPUS1 };
+        double arcTRmid[3]    = {  PLATE_L + PLATE_S,  PLATE_L + PLATE_S, Z_KORPUS1 };
+        double arcBRmid[3]    = {  PLATE_L + PLATE_S, -PLATE_L - PLATE_S, Z_KORPUS1 };
+        double arcBLmid[3]    = { -PLATE_L - PLATE_S, -PLATE_L - PLATE_S, Z_KORPUS1 };
+        double arcTLmid[3]    = { -PLATE_L - PLATE_S,  PLATE_L + PLATE_S, Z_KORPUS1 };
 
         errorCode = CreateLine(topLeft0, topRight0, kr1Curves[0]);
         if (errorCode != 0) goto cleanup;
@@ -315,10 +314,10 @@ void ufusr(char* param, int* retcode, int paramLen)
         }
 
         const double kr1HolePos[4][2] = {
-            {  KR1_HOLE_POS,  KR1_HOLE_POS },
-            { -KR1_HOLE_POS,  KR1_HOLE_POS },
-            { -KR1_HOLE_POS, -KR1_HOLE_POS },
-            {  KR1_HOLE_POS, -KR1_HOLE_POS }
+            {  CORNER_HOLE_POS,  CORNER_HOLE_POS },
+            { -CORNER_HOLE_POS,  CORNER_HOLE_POS },
+            { -CORNER_HOLE_POS, -CORNER_HOLE_POS },
+            {  CORNER_HOLE_POS, -CORNER_HOLE_POS }
         };
 
         const char* kr1HoleNames[4] = {
@@ -330,7 +329,7 @@ void ufusr(char* param, int* retcode, int paramLen)
 
         {
             double dir[3] = { 0.0, 0.0, 1.0 };
-            errorCode = BuildHoles(kr1HolePos, kr1HoleNames, Z_KORPUS1, KR1_HOLE_R, "14", dir);
+            errorCode = BuildHoles(kr1HolePos, kr1HoleNames, Z_KORPUS1, CORNER_HOLE_R, "14", dir);
             if (errorCode != 0) goto cleanup;
         }
 
@@ -354,9 +353,7 @@ void ufusr(char* param, int* retcode, int paramLen)
     }
 
     {
-        const double Z_KORPUS_PATRUBOK = 0.0;
-        const double KP_OUTER_R = 30.0;
-        const double KP_INNER_R = 25.0;
+        const double Z_KORPUS_PATRUBOK = Z_ORIGIN;
 
         tag_t kpSketch = NULL_TAG;
         tag_t kpOuter  = NULL_TAG;
@@ -365,10 +362,10 @@ void ufusr(char* param, int* retcode, int paramLen)
         errorCode = CreateSketchOnPlane("Sketch_Korpus_Patrubok", Z_KORPUS_PATRUBOK, kpSketch);
         if (errorCode != 0) goto cleanup;
 
-        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS_PATRUBOK, KP_OUTER_R, kpOuter);
+        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS_PATRUBOK, TUBE_OUTER_R, kpOuter);
         if (errorCode != 0) goto cleanup;
 
-        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS_PATRUBOK, KP_INNER_R, kpInner);
+        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS_PATRUBOK, TUBE_INNER_R, kpInner);
         if (errorCode != 0) goto cleanup;
 
         {
@@ -379,7 +376,7 @@ void ufusr(char* param, int* retcode, int paramLen)
 
         {
             double dir[3] = { 0.0, 0.0, 1.0 };
-            errorCode = CreateExtrusion(kpSketch, "0", "105", dir, UF_POSITIVE);
+            errorCode = CreateExtrusion(kpSketch, "0", TUBE_HEIGHT_STR, dir, UF_POSITIVE);
             if (errorCode != 0) goto cleanup;
         }
 
@@ -410,21 +407,17 @@ void ufusr(char* param, int* retcode, int paramLen)
     }
 
     {
-        const double Z_KORPUS2    = 119.0;
-        const double KR2_OUTER_R  = 70.0;
-        const double KR2_INNER_R  = 25.0;
-
         tag_t kr2Sketch = NULL_TAG;
         tag_t kr2Outer  = NULL_TAG;
         tag_t kr2Inner  = NULL_TAG;
 
-        errorCode = CreateSketchOnPlane("Sketch_Korpus2", Z_KORPUS2, kr2Sketch);
+        errorCode = CreateSketchOnPlane("Sketch_Korpus2", Z_PROKLADKA1, kr2Sketch);
         if (errorCode != 0) goto cleanup;
 
-        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS2, KR2_OUTER_R, kr2Outer);
+        errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_OUTER, kr2Outer);
         if (errorCode != 0) goto cleanup;
 
-        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS2, KR2_INNER_R, kr2Inner);
+        errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_INNER, kr2Inner);
         if (errorCode != 0) goto cleanup;
 
         {
@@ -440,14 +433,11 @@ void ufusr(char* param, int* retcode, int paramLen)
         }
 
         {
-            const double KR2_HOLE_R    = 6.5;
-            const double KR2_HOLE_POS  = 50.0;
-
             const double kr2HolePos[4][2] = {
-                {  KR2_HOLE_POS,  0.0 },
-                {  0.0,  KR2_HOLE_POS },
-                { -KR2_HOLE_POS,  0.0 },
-                {  0.0, -KR2_HOLE_POS }
+                {  R_PITCH,  0.0 },
+                {  0.0,  R_PITCH },
+                { -R_PITCH,  0.0 },
+                {  0.0, -R_PITCH }
             };
 
             const char* kr2HoleNames[4] = {
@@ -458,13 +448,13 @@ void ufusr(char* param, int* retcode, int paramLen)
             };
 
             double dir[3] = { 0.0, 0.0, -1.0 };
-            errorCode = BuildHoles(kr2HolePos, kr2HoleNames, Z_KORPUS2, KR2_HOLE_R, "25", dir);
+            errorCode = BuildHoles(kr2HolePos, kr2HoleNames, Z_PROKLADKA1, R_HOLE, "25", dir);
             if (errorCode != 0) goto cleanup;
         }
     }
 
     {
-        const double BOB_Y_PLANE   = 30.0;
+        const double BOB_Y_PLANE   = TUBE_OUTER_R;
         const double BOB_Z         = KP_HOLE_Z;
         const double BOB_OUTER_R   = KP_HOLE_R;
         const double BOB_INNER_R   = 10.5;
@@ -513,26 +503,20 @@ void ufusr(char* param, int* retcode, int paramLen)
             errorCode = CreateSketchOnPlane("Sketch_Bob_Bore", 0.0, boreSketch);
             if (errorCode != 0) goto cleanup;
 
-            errorCode = CreateCircle(0.0, 0.0, 0.0, 25.0, boreCircle);
+            errorCode = CreateCircle(0.0, 0.0, Z_ORIGIN, R_PROKLADKA1_INNER, boreCircle);
             if (errorCode != 0) goto cleanup;
 
             errorCode = AddObjectsToSketch(boreSketch, 1, &boreCircle);
             if (errorCode != 0) goto cleanup;
 
             double dir[3] = { 0.0, 0.0, 1.0 };
-            errorCode = CreateExtrusion(boreSketch, "0", "105", dir, UF_NEGATIVE);
+            errorCode = CreateExtrusion(boreSketch, "0", TUBE_HEIGHT_STR, dir, UF_NEGATIVE);
             if (errorCode != 0) goto cleanup;
         }
     }
 
     {
         const double Z_FLANETZ    = -5.0;
-        const double FL_HALF      = 80.0;
-        const double FL_RADIUS    = 20.0;
-        const double FL_L         = FL_HALF - FL_RADIUS;
-        const double FL_S         = FL_RADIUS * 0.7071067811865476;
-        const double FL_HOLE_R    = 7.5;
-        const double FL_HOLE_POS  = 62.5;
 
         tag_t flSketch = NULL_TAG;
         tag_t flCurves[8] = { NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG,
@@ -541,19 +525,19 @@ void ufusr(char* param, int* retcode, int paramLen)
         errorCode = CreateSketchOnPlane("Sketch_Flanetz", Z_FLANETZ, flSketch);
         if (errorCode != 0) goto cleanup;
 
-        double topLeft0[3]    = { -FL_L,  FL_HALF, Z_FLANETZ };
-        double topRight0[3]   = {  FL_L,  FL_HALF, Z_FLANETZ };
-        double rightTop0[3]   = {  FL_HALF,  FL_L, Z_FLANETZ };
-        double rightBot0[3]   = {  FL_HALF, -FL_L, Z_FLANETZ };
-        double botRight0[3]   = {  FL_L, -FL_HALF, Z_FLANETZ };
-        double botLeft0[3]    = { -FL_L, -FL_HALF, Z_FLANETZ };
-        double leftBot0[3]    = { -FL_HALF, -FL_L, Z_FLANETZ };
-        double leftTop0[3]    = { -FL_HALF,  FL_L, Z_FLANETZ };
+        double topLeft0[3]    = { -PLATE_L,  PLATE_HALF, Z_FLANETZ };
+        double topRight0[3]   = {  PLATE_L,  PLATE_HALF, Z_FLANETZ };
+        double rightTop0[3]   = {  PLATE_HALF,  PLATE_L, Z_FLANETZ };
+        double rightBot0[3]   = {  PLATE_HALF, -PLATE_L, Z_FLANETZ };
+        double botRight0[3]   = {  PLATE_L, -PLATE_HALF, Z_FLANETZ };
+        double botLeft0[3]    = { -PLATE_L, -PLATE_HALF, Z_FLANETZ };
+        double leftBot0[3]    = { -PLATE_HALF, -PLATE_L, Z_FLANETZ };
+        double leftTop0[3]    = { -PLATE_HALF,  PLATE_L, Z_FLANETZ };
 
-        double arcTRmid[3]    = {  FL_L + FL_S,  FL_L + FL_S, Z_FLANETZ };
-        double arcBRmid[3]    = {  FL_L + FL_S, -FL_L - FL_S, Z_FLANETZ };
-        double arcBLmid[3]    = { -FL_L - FL_S, -FL_L - FL_S, Z_FLANETZ };
-        double arcTLmid[3]    = { -FL_L - FL_S,  FL_L + FL_S, Z_FLANETZ };
+        double arcTRmid[3]    = {  PLATE_L + PLATE_S,  PLATE_L + PLATE_S, Z_FLANETZ };
+        double arcBRmid[3]    = {  PLATE_L + PLATE_S, -PLATE_L - PLATE_S, Z_FLANETZ };
+        double arcBLmid[3]    = { -PLATE_L - PLATE_S, -PLATE_L - PLATE_S, Z_FLANETZ };
+        double arcTLmid[3]    = { -PLATE_L - PLATE_S,  PLATE_L + PLATE_S, Z_FLANETZ };
 
         errorCode = CreateLine(topLeft0, topRight0, flCurves[0]);
         if (errorCode != 0) goto cleanup;
@@ -589,10 +573,10 @@ void ufusr(char* param, int* retcode, int paramLen)
         }
 
         const double flHolePos[4][2] = {
-            {  FL_HOLE_POS,  FL_HOLE_POS },
-            { -FL_HOLE_POS,  FL_HOLE_POS },
-            { -FL_HOLE_POS, -FL_HOLE_POS },
-            {  FL_HOLE_POS, -FL_HOLE_POS }
+            {  CORNER_HOLE_POS,  CORNER_HOLE_POS },
+            { -CORNER_HOLE_POS,  CORNER_HOLE_POS },
+            { -CORNER_HOLE_POS, -CORNER_HOLE_POS },
+            {  CORNER_HOLE_POS, -CORNER_HOLE_POS }
         };
 
         const char* flHoleNames[4] = {
@@ -604,7 +588,7 @@ void ufusr(char* param, int* retcode, int paramLen)
 
         {
             double dir[3] = { 0.0, 0.0, -1.0 };
-            errorCode = BuildHoles(flHolePos, flHoleNames, Z_FLANETZ, FL_HOLE_R, "25", dir);
+            errorCode = BuildHoles(flHolePos, flHoleNames, Z_FLANETZ, CORNER_HOLE_R, "25", dir);
             if (errorCode != 0) goto cleanup;
         }
 

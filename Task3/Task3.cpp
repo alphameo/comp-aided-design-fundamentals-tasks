@@ -54,6 +54,8 @@ void ufusr(char* param, int* retcode, int paramLen)
     const double R_HOLE             = 6.5;
     const double R_PITCH            = 50.0;
     const double R_ZAGLUSHKA_BORE   = 27.5;
+    const double KP_HOLE_R          = 17.5;
+    const double KP_HOLE_Z          = 59.0;
 
     const double positions[4][2] = {
         {  R_PITCH,  0.0 },
@@ -387,10 +389,6 @@ void ufusr(char* param, int* retcode, int paramLen)
             errorCode = CreateSketchOnPlaneZX("Sketch_KP_Hole", kpHoleSketch);
             if (errorCode != 0) goto cleanup;
 
-            const double KP_HOLE_DIAM = 35.0;
-            const double KP_HOLE_R    = KP_HOLE_DIAM / 2.0;
-            const double KP_HOLE_Z    = 59.0;
-
             tag_t kpHoleCircle = NULL_TAG;
 
             double pt1[3] = { KP_HOLE_R, 0.0, KP_HOLE_Z };
@@ -461,6 +459,50 @@ void ufusr(char* param, int* retcode, int paramLen)
 
             double dir[3] = { 0.0, 0.0, -1.0 };
             errorCode = BuildHoles(kr2HolePos, kr2HoleNames, Z_KORPUS2, KR2_HOLE_R, "25", dir);
+            if (errorCode != 0) goto cleanup;
+        }
+    }
+
+    {
+        const double BOB_Y_PLANE   = 30.0;
+        const double BOB_Z         = KP_HOLE_Z;
+        const double BOB_OUTER_R   = KP_HOLE_R;
+        const double BOB_INNER_R   = 10.5;
+
+        tag_t bobSketch = NULL_TAG;
+
+        errorCode = CreateSketchOnPlaneParallelZX("Sketch_Bobyshka", BOB_Y_PLANE, bobSketch);
+        if (errorCode != 0) goto cleanup;
+
+        tag_t bobOuter = NULL_TAG;
+        double pt1[3] = { BOB_OUTER_R, BOB_Y_PLANE, BOB_Z };
+        double pt2[3] = { -BOB_OUTER_R, BOB_Y_PLANE, BOB_Z };
+        double pt3[3] = { 0.0, BOB_Y_PLANE, BOB_Z + BOB_OUTER_R };
+        errorCode = UF_CURVE_create_arc_thru_3pts(2, pt1, pt2, pt3, &bobOuter);
+        if (errorCode != 0) goto cleanup;
+
+        tag_t bobInner = NULL_TAG;
+        pt1[0] = BOB_INNER_R; pt1[2] = BOB_Z;
+        pt2[0] = -BOB_INNER_R; pt2[2] = BOB_Z;
+        pt3[2] = BOB_Z + BOB_INNER_R;
+        errorCode = UF_CURVE_create_arc_thru_3pts(2, pt1, pt2, pt3, &bobInner);
+        if (errorCode != 0) goto cleanup;
+
+        {
+            tag_t objs[2] = { bobOuter, bobInner };
+            errorCode = AddObjectsToSketch(bobSketch, 2, objs);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        {
+            double dir[3] = { 0.0, -1.0, 0.0 };
+            errorCode = CreateExtrusion(bobSketch, "0", "30", dir, UF_POSITIVE);
+            if (errorCode != 0) goto cleanup;
+        }
+
+        {
+            double dir[3] = { 0.0, 1.0, 0.0 };
+            errorCode = CreateExtrusion(bobSketch, "0", "15", dir, UF_POSITIVE);
             if (errorCode != 0) goto cleanup;
         }
     }

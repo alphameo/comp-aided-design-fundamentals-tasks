@@ -12,6 +12,12 @@ int CreateSketchOnPlaneZX(
     tag_t&      sketchTag
 );
 
+int CreateSketchOnPlaneParallelZX(
+    const char* name,
+    double      yOffset,
+    tag_t&      sketchTag
+);
+
 int AddObjectsToSketch(
     tag_t       sketchTag,
     int         count,

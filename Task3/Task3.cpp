@@ -505,6 +505,24 @@ void ufusr(char* param, int* retcode, int paramLen)
             errorCode = CreateExtrusion(bobSketch, "0", "15", dir, UF_POSITIVE);
             if (errorCode != 0) goto cleanup;
         }
+
+        {
+            tag_t boreSketch = NULL_TAG;
+            tag_t boreCircle = NULL_TAG;
+
+            errorCode = CreateSketchOnPlane("Sketch_Bob_Bore", 0.0, boreSketch);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = CreateCircle(0.0, 0.0, 0.0, 25.0, boreCircle);
+            if (errorCode != 0) goto cleanup;
+
+            errorCode = AddObjectsToSketch(boreSketch, 1, &boreCircle);
+            if (errorCode != 0) goto cleanup;
+
+            double dir[3] = { 0.0, 0.0, 1.0 };
+            errorCode = CreateExtrusion(boreSketch, "0", "105", dir, UF_NEGATIVE);
+            if (errorCode != 0) goto cleanup;
+        }
     }
 
     {

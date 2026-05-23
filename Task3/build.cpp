@@ -272,7 +272,7 @@ int BuildKorpusFlanetz1(void)
     tag_t kr1Curves[8] = { NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG,
                            NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG };
 
-    int errorCode = CreateSketchOnPlane("Sketch_Korpus_Flanetz1", Z_KORPUS1, kr1Sketch);
+    int errorCode = CreateSketchOnPlane("Sketch_Korpus_Flanetz1", Z_KORPUS_FL1, kr1Sketch);
     if (errorCode != 0) return errorCode;
 
     double topLeft0[3]    = { -PLATE_L,  PLATE_HALF, Z_KORPUS_FL1 };
@@ -335,10 +335,10 @@ int BuildKorpusFlanetz1(void)
         tag_t kr1CenterSketch = NULL_TAG;
         tag_t kr1CenterCircle = NULL_TAG;
 
-        errorCode = CreateSketchOnPlane("Sketch_Kfl1_Center", Z_KORPUS1, kr1CenterSketch);
+        errorCode = CreateSketchOnPlane("Sketch_Kfl1_Center", Z_KORPUS_FL1, kr1CenterSketch);
         if (errorCode != 0) return errorCode;
 
-        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS1, KR1_CENTER_R, kr1CenterCircle);
+        errorCode = CreateCircle(0.0, 0.0, Z_KORPUS_FL1, KR1_CENTER_R, kr1CenterCircle);
         if (errorCode != 0) return errorCode;
 
         errorCode = AddObjectsToSketch(kr1CenterSketch, 1, &kr1CenterCircle);
@@ -413,24 +413,24 @@ int BuildKorpusFlanetz2(void)
     tag_t kfl2Outer  = NULL_TAG;
     tag_t kfl2Inner  = NULL_TAG;
 
-    int errorCode = CreateSketchOnPlane("Sketch_Korpus_Flanetz2", Z_PROKLADKA1, kr2Sketch);
+    int errorCode = CreateSketchOnPlane("Sketch_Korpus_Flanetz2", Z_PROKLADKA1, kfl2Sketch);
     if (errorCode != 0) return errorCode;
 
-    errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_OUTER, kr2Outer);
+    errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_OUTER, kfl2Outer);
     if (errorCode != 0) return errorCode;
 
-    errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_INNER, kr2Inner);
+    errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_INNER, kfl2Inner);
     if (errorCode != 0) return errorCode;
 
     {
-        tag_t objs[2] = { kr2Outer, kr2Inner };
-        errorCode = AddObjectsToSketch(kr2Sketch, 2, objs);
+        tag_t objs[2] = { kfl2Outer, kfl2Inner };
+        errorCode = AddObjectsToSketch(kfl2Sketch, 2, objs);
         if (errorCode != 0) return errorCode;
     }
 
     {
         double dir[3] = { 0.0, 0.0, -1.0 };
-        errorCode = CreateExtrusion(kr2Sketch, "0", "25", dir, UF_POSITIVE);
+        errorCode = CreateExtrusion(kfl2Sketch, "0", "25", dir, UF_POSITIVE);
         if (errorCode != 0) return errorCode;
     }
 

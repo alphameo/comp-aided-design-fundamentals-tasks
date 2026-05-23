@@ -263,31 +263,31 @@ int BuildProkladka2(void)
 }
 
 
-int BuildKorpus1(void)
+int BuildKorpusFlanetz1(void)
 {
-    const double Z_KORPUS1    = Z_ORIGIN;
+    const double Z_KORPUS_FL1    = Z_ORIGIN;
     const double KR1_CENTER_R = 25.0;
 
     tag_t kr1Sketch = NULL_TAG;
     tag_t kr1Curves[8] = { NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG,
                            NULL_TAG, NULL_TAG, NULL_TAG, NULL_TAG };
 
-    int errorCode = CreateSketchOnPlane("Sketch_Korpus1", Z_KORPUS1, kr1Sketch);
+    int errorCode = CreateSketchOnPlane("Sketch_Korpus_Flanetz1", Z_KORPUS1, kr1Sketch);
     if (errorCode != 0) return errorCode;
 
-    double topLeft0[3]    = { -PLATE_L,  PLATE_HALF, Z_KORPUS1 };
-    double topRight0[3]   = {  PLATE_L,  PLATE_HALF, Z_KORPUS1 };
-    double rightTop0[3]   = {  PLATE_HALF,  PLATE_L, Z_KORPUS1 };
-    double rightBot0[3]   = {  PLATE_HALF, -PLATE_L, Z_KORPUS1 };
-    double botRight0[3]   = {  PLATE_L, -PLATE_HALF, Z_KORPUS1 };
-    double botLeft0[3]    = { -PLATE_L, -PLATE_HALF, Z_KORPUS1 };
-    double leftBot0[3]    = { -PLATE_HALF, -PLATE_L, Z_KORPUS1 };
-    double leftTop0[3]    = { -PLATE_HALF,  PLATE_L, Z_KORPUS1 };
+    double topLeft0[3]    = { -PLATE_L,  PLATE_HALF, Z_KORPUS_FL1 };
+    double topRight0[3]   = {  PLATE_L,  PLATE_HALF, Z_KORPUS_FL1 };
+    double rightTop0[3]   = {  PLATE_HALF,  PLATE_L, Z_KORPUS_FL1 };
+    double rightBot0[3]   = {  PLATE_HALF, -PLATE_L, Z_KORPUS_FL1 };
+    double botRight0[3]   = {  PLATE_L, -PLATE_HALF, Z_KORPUS_FL1 };
+    double botLeft0[3]    = { -PLATE_L, -PLATE_HALF, Z_KORPUS_FL1 };
+    double leftBot0[3]    = { -PLATE_HALF, -PLATE_L, Z_KORPUS_FL1 };
+    double leftTop0[3]    = { -PLATE_HALF,  PLATE_L, Z_KORPUS_FL1 };
 
-    double arcTRmid[3]    = {  PLATE_L + PLATE_S,  PLATE_L + PLATE_S, Z_KORPUS1 };
-    double arcBRmid[3]    = {  PLATE_L + PLATE_S, -PLATE_L - PLATE_S, Z_KORPUS1 };
-    double arcBLmid[3]    = { -PLATE_L - PLATE_S, -PLATE_L - PLATE_S, Z_KORPUS1 };
-    double arcTLmid[3]    = { -PLATE_L - PLATE_S,  PLATE_L + PLATE_S, Z_KORPUS1 };
+    double arcTRmid[3]    = {  PLATE_L + PLATE_S,  PLATE_L + PLATE_S, Z_KORPUS_FL1 };
+    double arcBRmid[3]    = {  PLATE_L + PLATE_S, -PLATE_L - PLATE_S, Z_KORPUS_FL1 };
+    double arcBLmid[3]    = { -PLATE_L - PLATE_S, -PLATE_L - PLATE_S, Z_KORPUS_FL1 };
+    double arcTLmid[3]    = { -PLATE_L - PLATE_S,  PLATE_L + PLATE_S, Z_KORPUS_FL1 };
 
     errorCode = CreateLine(topLeft0, topRight0, kr1Curves[0]);
     if (errorCode != 0) return errorCode;
@@ -323,11 +323,11 @@ int BuildKorpus1(void)
             {  CORNER_HOLE_POS, -CORNER_HOLE_POS }
         };
         const char* kr1HoleNames[4] = {
-            "Sketch_Kr1_Hole_0", "Sketch_Kr1_Hole_1",
-            "Sketch_Kr1_Hole_2", "Sketch_Kr1_Hole_3"
+            "Sketch_Kfl_Hole_0", "Sketch_Kfl1_Hole_1",
+            "Sketch_Kfl_Hole_2", "Sketch_Kfl1_Hole_3"
         };
         double dir[3] = { 0.0, 0.0, 1.0 };
-        errorCode = BuildHoles(kr1HolePos, kr1HoleNames, Z_KORPUS1, CORNER_HOLE_R, "14", dir);
+        errorCode = BuildHoles(kr1HolePos, kr1HoleNames, Z_KORPUS_FL1, CORNER_HOLE_R, "14", dir);
         if (errorCode != 0) return errorCode;
     }
 
@@ -335,7 +335,7 @@ int BuildKorpus1(void)
         tag_t kr1CenterSketch = NULL_TAG;
         tag_t kr1CenterCircle = NULL_TAG;
 
-        errorCode = CreateSketchOnPlane("Sketch_Kr1_Center", Z_KORPUS1, kr1CenterSketch);
+        errorCode = CreateSketchOnPlane("Sketch_Kfl1_Center", Z_KORPUS1, kr1CenterSketch);
         if (errorCode != 0) return errorCode;
 
         errorCode = CreateCircle(0.0, 0.0, Z_KORPUS1, KR1_CENTER_R, kr1CenterCircle);
@@ -407,13 +407,13 @@ int BuildKorpusPatrubok(void)
 }
 
 
-int BuildKorpus2(void)
+int BuildKorpusFlanetz2(void)
 {
-    tag_t kr2Sketch = NULL_TAG;
-    tag_t kr2Outer  = NULL_TAG;
-    tag_t kr2Inner  = NULL_TAG;
+    tag_t kfl2Sketch = NULL_TAG;
+    tag_t kfl2Outer  = NULL_TAG;
+    tag_t kfl2Inner  = NULL_TAG;
 
-    int errorCode = CreateSketchOnPlane("Sketch_Korpus2", Z_PROKLADKA1, kr2Sketch);
+    int errorCode = CreateSketchOnPlane("Sketch_Korpus_Flanetz2", Z_PROKLADKA1, kr2Sketch);
     if (errorCode != 0) return errorCode;
 
     errorCode = CreateCircle(0.0, 0.0, Z_PROKLADKA1, R_PROKLADKA1_OUTER, kr2Outer);
@@ -436,8 +436,8 @@ int BuildKorpus2(void)
 
     {
         const char* kr2HoleNames[4] = {
-            "Sketch_Kr2_Hole_0", "Sketch_Kr2_Hole_1",
-            "Sketch_Kr2_Hole_2", "Sketch_Kr2_Hole_3"
+            "Sketch_Kfl2_Hole_0", "Sketch_Kfl2_Hole_1",
+            "Sketch_Kfl2_Hole_2", "Sketch_Kfl2_Hole_3"
         };
         double dir[3] = { 0.0, 0.0, -1.0 };
         errorCode = BuildHoles(PITCH_POS, kr2HoleNames, Z_PROKLADKA1, R_HOLE, "25", dir);
@@ -642,13 +642,13 @@ int BuildAssembly(void)
     errorCode = BuildProkladka2();
     if (errorCode != 0) return errorCode;
 
-    errorCode = BuildKorpus1();
+    errorCode = BuildKorpusFlanetz1();
     if (errorCode != 0) return errorCode;
 
     errorCode = BuildKorpusPatrubok();
     if (errorCode != 0) return errorCode;
 
-    errorCode = BuildKorpus2();
+    errorCode = BuildKorpusFlanetz2();
     if (errorCode != 0) return errorCode;
 
     errorCode = BuildBobyshka();
